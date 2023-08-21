@@ -30,7 +30,7 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
         return "cmd id";
     }
 
-    public static RecordResProc initInstenceForConsComd(RecordComdParams[] arrComdParams){
+    public static RecordResProc initInstenceConsComand(RecordComdParams[] arrComdParams){
 
         var method = arrComdParams[0].value();
         var eModfModel = switch (method) {

@@ -1,5 +1,6 @@
 package models;
 
+import DevlInterface.IRunComd;
 import devlAPI.enumType.EMOdfSalaries;
 
 import devlAPI.enumType.EModfModels;
@@ -20,7 +21,21 @@ public class DAOsalariesConsComand {
             default -> EMOdfSalaries.EMPTY;
         };
 
+        int yymm;
+        try{
+            yymm = Integer.parseInt(arrComdParams[1].value());
+        } catch (NumberFormatException ex){
+            return RecordResProc.getResultErr("Ошибка yymm д. быть число");
+        }
 
+        // ls
+        if (eModfSalalies == EMOdfSalaries.GET_LS_SALARIES){
+            var salareesComb = new SalariesCombine(yymm);
+            salareesComb.loadDataSalariesExt();
+
+            IRunComd iRunComd = salareesComb::printArrSalarees;
+            return new RecordResProc(iRunComd);
+        }
 
         return new RecordResProc();
     }
@@ -30,7 +45,7 @@ public class DAOsalariesConsComand {
     }
 
     public static String getConsoleParameter(){
-        return "add yymm";
+        return "cmd ls add yymm";
     }
 
     public static void setArrRecComdParams(RecordComdParams[] arr){

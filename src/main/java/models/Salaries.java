@@ -4,42 +4,29 @@ public class Salaries {
     private int id;
     private int yymm;
     private int emploeesId;
+    private String fullName;
     private int salary;
 
-    private Salaries[] arrSalaries = null;
-
-    public Salaries[] getArrSalaries(){
-        if (arrSalaries == null){
-            arrSalaries = SalariesDAO.getArrSalaries(yymm);
-        }
-
-        return arrSalaries;
-    }
-    public int getId() {
-        return id;
-    }
-
-    public int getYymm() {
-        return yymm;
-    }
-
-    public void setYymm(int yymm) {
+    public Salaries(int id, int yymm, int emploeeId, int salary){
+        this.id = id;
         this.yymm = yymm;
-    }
-
-    public int getEmploeesId() {
-        return emploeesId;
-    }
-
-    public void setEmploeesId(int emploeesId) {
-        this.emploeesId = emploeesId;
-    }
-
-    public int getSalary() {
-        return salary;
-    }
-
-    public void setSalary(int salary) {
+        this.emploeesId = emploeeId;
         this.salary = salary;
     }
+
+    public void setFullName(String fullName){
+        this.fullName = fullName;
+    }
+
+    // -----------------
+
+    @Override
+    public String toString() {
+        return String.format("%d yymm:%d emplId:%-3d %d",id, yymm, emploeesId, salary );
+    }
+
+    public String toStringExt() {
+        return String.format("%d yymm:%d emplId:%-3d %d руб. %s",id, yymm, emploeesId, salary, fullName );
+    }
+
 }

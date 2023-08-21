@@ -14,6 +14,8 @@ import java.util.List;
  */
 public class SalariesDAO extends DAOabstract<Salaries> {
 
+    private static Salaries[] arrSalaries;
+
     public static Salaries[] getArrSalaries(int yymm) {
         return null;
     }
@@ -41,7 +43,7 @@ public class SalariesDAO extends DAOabstract<Salaries> {
         return (dateNext.getYear() - 2000) * 100 + dateNext.getMonth().getValue();
     }
 
-    private static boolean verfExistsData(int yymm) {
+    public static boolean verfExistsData(int yymm) {
 
         var sql = String.format("""
                 SELECT  CASE
@@ -60,7 +62,6 @@ public class SalariesDAO extends DAOabstract<Salaries> {
         var res = Integer.parseInt(resSql.strData());
         return res > 0;
     }
-
 
     public static int getMaxYYMM() {
         var sql = """

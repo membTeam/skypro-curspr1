@@ -1,13 +1,14 @@
 package org.curspr;
 
-import java.util.Scanner;
-
+import DevlInterface.IRunComd;
 import devlAPI.APIerror;
 import devlAPI.ConsParser;
 import models.DAObaseConsComand;
-import models.SalariesDAO;
 
-import static devlAPI.APIprintService.*;
+import java.util.Scanner;
+
+import static devlAPI.APIprintService.print;
+import static devlAPI.APIprintService.println;
 
 public class App {
     private final static Scanner scanner;
@@ -20,19 +21,8 @@ public class App {
     public static void main(String[] args) {
         println("Курсовой проект 1");
 
-        println("Список допустимых команд: list comd");
+        println("Список допустимых команд: print comands");
         println("Выход из консольного режима quit");
-
-        var lastYYMM = SalariesDAO.getMaxYYMM();
-        var nextYYMM = SalariesDAO.incYYMM(lastYYMM);
-        var resSalary = SalariesDAO.setSalaries(nextYYMM);
-
-        if (!resSalary.res()){
-            println(resSalary.mes());
-            return;
-        } else {
-            println("ok");
-        }
 
         try (scanner) {
             while (true) {
@@ -57,7 +47,10 @@ public class App {
                     continue;
                 }
 
-                if (resConsComd.data() != null
+                if (resConsComd.data() != null && resConsComd.data() instanceof IRunComd) {
+                    ((IRunComd) resConsComd.data()).apply();
+
+                } else if (resConsComd.data() != null
                         && resConsComd.data() instanceof DAObaseConsComand) {
 
                     var resDaoConsComd = (DAObaseConsComand) resConsComd.data();
@@ -70,21 +63,16 @@ public class App {
                     }
 
                     // Вывод результата
-                    if (!APIerror.getErr()) {
-
-                        var resSave = resDaoConsComd.saveModel();
-                        if (resSave.res()) {
-                            if (resSave.data() != null) {
-                                println(resSave.data().toString());
-                            } else {
-                                println(resSave.mes());
-                            }
-
+                    var resSave = resDaoConsComd.saveModel();
+                    if (resSave.res()) {
+                        if (resSave.data() != null) {
+                            println(resSave.data().toString());
                         } else {
                             println(resSave.mes());
                         }
+
                     } else {
-                        println(APIerror.getMes());
+                        println(resSave.mes());
                     }
                 }
 
