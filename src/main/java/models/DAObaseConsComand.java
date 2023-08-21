@@ -11,7 +11,7 @@ import devlRecord.RecordResProc;
  *
  * @param <T>
  */
-public abstract class DAObaseConsComd<T extends DAOabstract> {
+public abstract class DAObaseConsComand<T extends DAOabstract> {
     private ConsParserItem[] arrConsParserItemModf;
     private int numPositionArr = 0;
     private int idModel;
@@ -19,7 +19,7 @@ public abstract class DAObaseConsComd<T extends DAOabstract> {
     private T modelDAO;
     private EModfModels eModfModels;
 
-    public DAObaseConsComd(T obj, int id, EModfModels eModfModels) {
+    public DAObaseConsComand(T obj, int id, EModfModels eModfModels) {
         modelDAO = obj;
         idModel = id;
         this.eModfModels = eModfModels;

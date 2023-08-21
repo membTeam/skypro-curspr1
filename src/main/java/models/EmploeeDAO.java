@@ -6,6 +6,7 @@ import devlRecord.RecordResProcExt;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -158,13 +159,18 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
             statement.setInt(1, id);
 
             var rs = statement.executeQuery();
+
+            var isUse = true;
+
             if (rs.next()) {
                 resProc = new Emploee(
                         rs.getInt(1),
                         rs.getString(2),
                         rs.getInt(3),
                         rs.getInt(4));
+                isUse = rs.getInt(5) > 0 ? true : false;
             }
+            resProc.setIdUse(isUse);
 
         } catch (SQLException ex) {
             println("err findEntityById:\n" + ex.getMessage());
@@ -174,9 +180,14 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
 
     @Override
     public RecordResProc delete(int id) {
-        var verfExist = verfExistsEmploee(id);
-        if (!verfExist.res()) {
-            return RecordResProc.getResultErr(verfExist.mes());
+
+        var emploee = findEntityById(id);
+        if (emploee == null){
+            return RecordResProc.getResultErr("Нет данных по сотруднику в БД");
+        }
+
+        if (!emploee.getIdUse()){
+            return RecordResProc.getResultErr("Сотрудник помечен на удаление");
         }
 
         var sql = String.format(SQL_DELETE, id);  // Удаление заменяется на измПоля idUse = 0
@@ -225,7 +236,7 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
             }
 
             if (!buf.isEmpty()) {
-                str = str.isEmpty() ? buf : ", " + buf;
+                str = str.isEmpty() ? buf : str + ", " + buf;
             }
         }
 

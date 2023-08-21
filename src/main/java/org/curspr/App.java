@@ -4,7 +4,8 @@ import java.util.Scanner;
 
 import devlAPI.APIerror;
 import devlAPI.ConsParser;
-import models.DAObaseConsComd;
+import models.DAObaseConsComand;
+import models.SalariesDAO;
 
 import static devlAPI.APIprintService.*;
 
@@ -22,22 +23,32 @@ public class App {
         println("Список допустимых команд: list comd");
         println("Выход из консольного режима quit");
 
+        var lastYYMM = SalariesDAO.getMaxYYMM();
+        var nextYYMM = SalariesDAO.incYYMM(lastYYMM);
+        var resSalary = SalariesDAO.setSalaries(nextYYMM);
+
+        if (!resSalary.res()){
+            println(resSalary.mes());
+            return;
+        } else {
+            println("ok");
+        }
+
         try (scanner) {
             while (true) {
 
                 print("введите команду: ");
                 var strInput = scanner.nextLine();
 
-                if (strInput.isEmpty()){
+                if (strInput.isEmpty()) {
                     println("Не корректный ввод команды");
-                    break;
+                    continue;
                 }
 
                 if (strInput.equals("quit")) {
                     break;
                 }
 
-                // TODO: встраивание общего общего обработчика
                 var resConsComd = ConsParser.menedjConsoleComd(strInput);
 
                 if (!resConsComd.res()) {
@@ -47,26 +58,28 @@ public class App {
                 }
 
                 if (resConsComd.data() != null
-                            && resConsComd.data() instanceof DAObaseConsComd) {
+                        && resConsComd.data() instanceof DAObaseConsComand) {
 
-                    var daoConsComd = (DAObaseConsComd)resConsComd.data();
+                    var resDaoConsComd = (DAObaseConsComand) resConsComd.data();
 
                     strInput = "";
                     String prMes;
-                    while ( !(prMes = daoConsComd.nextStr(strInput)).isEmpty() ){
+                    while (!(prMes = resDaoConsComd.nextStr(strInput)).isEmpty()) {
                         print(prMes);
                         strInput = scanner.nextLine();
                     }
 
                     // Вывод результата
-                    if (!APIerror.getErr()){
-                        var resSave = daoConsComd.saveModel();
-                        if (resSave.res()){
-                            if (resSave.data() != null){
+                    if (!APIerror.getErr()) {
+
+                        var resSave = resDaoConsComd.saveModel();
+                        if (resSave.res()) {
+                            if (resSave.data() != null) {
                                 println(resSave.data().toString());
                             } else {
                                 println(resSave.mes());
                             }
+
                         } else {
                             println(resSave.mes());
                         }

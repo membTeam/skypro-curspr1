@@ -3,11 +3,12 @@ package models;
 import devlAPI.APIerror;
 import devlAPI.ConsParserItem;
 import devlAPI.enumType.EModfModels;
+import devlRecord.RecordComdParams;
 import devlRecord.RecordResProc;
 
 import static devlAPI.APIprintService.println;
 
-public class DAOEmploeeConsComd extends DAObaseConsComd {
+public class DAOEmploeeConsComd extends DAObaseConsComand {
     private Emploee model = null;
     private final EModfModels eModfModels;
     private String strDeparment;
@@ -22,6 +23,44 @@ public class DAOEmploeeConsComd extends DAObaseConsComd {
         }
 
         initArrConsParserItemModf();
+    }
+
+    // ---------------- static
+    public static String getConsoleParameter(){
+        return "cmd id";
+    }
+
+    public static RecordResProc initInstenceForConsComd(RecordComdParams[] arrComdParams){
+
+        var method = arrComdParams[0].value();
+        var eModfModel = switch (method) {
+            case "upd" -> EModfModels.UPDATE;
+            case "ins" -> EModfModels.INSERT;
+            case "del" -> EModfModels.DELETE;
+            default -> EModfModels.EMPTY;
+        };
+
+        if (eModfModel == EModfModels.EMPTY){
+            return RecordResProc.getResultErr("Метод " + method + " не распознан д/быть upd ins del");
+        }
+
+        var strId = arrComdParams[1].value();
+        int id;
+        try {
+            id = eModfModel == EModfModels.INSERT ? -1 : Integer.parseInt(strId);
+        } catch (NumberFormatException es) {
+            return RecordResProc.getResultErr("Ошибка id д. быть число");
+        }
+
+        var daoBaseConsComd = new DAOEmploeeConsComd(id, eModfModel);
+
+        if (eModfModel != EModfModels.INSERT
+                && !((DAOEmploeeConsComd) daoBaseConsComd).isExistsModel()) {
+            return RecordResProc.getResultErr(
+                    String.format("%s нет данных по id %d", "Emploee", id));
+        }
+
+        return new RecordResProc(daoBaseConsComd);
     }
 
     // ------------------------------------------------

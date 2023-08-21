@@ -16,13 +16,13 @@ import static devlAPI.APIprintService.println;
 
 public class DepartmentDAO extends DAOabstract<Department> {
 
-    private final String SQL_SELECT_ALL_DEPARMENT = "select * from Departments d;";
-    private final String SQL_SELECT_EMPLOEE_ID = "select * from Departments d WHERE id = 1;";
+    //private final String SQL_SELECT_ALL_DEPARMENT = "select * from Departments d;";
+    //private final String SQL_SELECT_EMPLOEE_ID = "select * from Departments d WHERE id = 1;";
 
 
     // --------------- static
     public static RecordResProc getArrayModel(int id) {
-        RecordResProc res = null;
+        //RecordResProc res = null;
         List<Department> lsDepartment = new ArrayList<>();
 
         var sql = id > 0
@@ -40,14 +40,12 @@ public class DepartmentDAO extends DAOabstract<Department> {
                 );
             }
 
-            res = new RecordResProc(true, "ok", lsDepartment);
+             return new RecordResProc(true, "ok", lsDepartment);
         } catch (SQLException ex) {
-            res = new RecordResProc(false, ex.getMessage(), null);
+            return new RecordResProc(false, ex.getMessage(), null);
         } catch (Exception ex) {
-            res = new RecordResProc(false, ex.getMessage(), null);
+            return new RecordResProc(false, ex.getMessage(), null);
         }
-
-        return res;
     }
 
     public static void consComd(String strComd) {

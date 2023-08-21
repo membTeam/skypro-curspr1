@@ -6,6 +6,15 @@ public class Salaries {
     private int emploeesId;
     private int salary;
 
+    private Salaries[] arrSalaries = null;
+
+    public Salaries[] getArrSalaries(){
+        if (arrSalaries == null){
+            arrSalaries = SalariesDAO.getArrSalaries(yymm);
+        }
+
+        return arrSalaries;
+    }
     public int getId() {
         return id;
     }
