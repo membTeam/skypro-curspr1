@@ -90,7 +90,6 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
 
         } catch (SQLException ex) {
             res = new RecordResProc(false, ex.getMessage(), null);
-            println("err:\n" + ex.getMessage());
         }
 
         return res;
@@ -99,6 +98,7 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
     static public void printAllEmploee() {
         var resEmploee = getAllEmploee();
         if (!resEmploee.res()) {
+            APIerror.setError("Нет данных по сотрудникам");
             return;
         }
 
