@@ -28,6 +28,7 @@ public class DAOsalariesConsComand {
         var res = switch (method) {
             case "add" -> addSalaries(yymm);
             case "ls" -> printArrSalarees(yymm);
+            case "stat" -> printStatistics(yymm);
             default -> RecordResProc.getResultErr(
                     String.format("(%s) нет такой команды", method));
         };
@@ -35,8 +36,13 @@ public class DAOsalariesConsComand {
         return res;
     }
 
-    private static RecordResProc addSalaries(int yymm) {
+    private static RecordResProc printStatistics(int yymm){
+        var statistica = new Statistics(yymm);
 
+        return new RecordResProc((IRunComd) statistica::printEntity);
+    }
+
+    private static RecordResProc addSalaries(int yymm) {
 
         return null;
     }
@@ -51,7 +57,7 @@ public class DAOsalariesConsComand {
 
 
     public static String getConsoleParameter(){
-        return "cmd ls add yymm";
+        return "cmd ls add yymm stat";
     }
 
 }

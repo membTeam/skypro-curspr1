@@ -15,14 +15,17 @@ public class ConsRunComand {
     private RecordResProc recForRunConsoleComd = null;
 
     {
+        // массив доступных консльных команд
         var lsComd = new String[]{
                 "print comands -> вывести список допустимых команд",
                 "print position -> штатное расписание организации",
                 "print department -> вывод справочника по отделам",
                 "print emploee -> Вывод справочника по сотрудникам",
                 "help dao emploee -> шаблон команды для изм. справочника по сотрудникам",
+                "help dao salaries -> статистика по выплатам на заданный период",
         };
 
+        // Массив консольных команд
         arrRecordComd = new RecRunComd[]{
                 new RecRunComd("print comands", () -> {
                                     for (var item : lsComd) {
@@ -31,15 +34,19 @@ public class ConsRunComand {
                 new RecRunComd("print department", DepartmentDAO::printAllDepartment),
                 new RecRunComd("print position", PositionsDAO::printAllPosition),
                 new RecRunComd("print emploee", EmploeeDAO::printAllEmploee),
+                new RecRunComd("help dao salaries", ()->{
+                            var strPrint = "dao salaries --cmd stat --yymm 2308 статистика на заданный период";
+                            println(strPrint);
+                        }),
                 new RecRunComd("help dao emploee", () -> {
                     var strPrint = """
                             dao emploee --cmd ins --id 0 -> ввод нового сотрудника
                             dao emploee --cmd upd --id 2 -> изменение данных сотрудника
                             dao emploee --cmd del --id 2 -> удаление сотрудника
-                            dao emploee --cmd pr --gr 2 -> список сотрудников по отделу
+                            dao emploee --cmd pr --gr 2 -> список сотрудников по отделу                                                         
                             """;
-                    println(strPrint.indent(5));
-                }),
+                        println(strPrint.indent(5));
+                    }),
         };
     }
 
