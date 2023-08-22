@@ -1,5 +1,6 @@
 package models;
 
+import devlAPI.APIdevl;
 import devlAPI.APIerror;
 import devlRecord.RecordResProc;
 import devlRecord.RecordResProcExt;
@@ -25,48 +26,6 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
 
     // ----------------------------
 
-    public static void consComd(String strComd) {
-        var templMatcher = "(\\w+):(\\w++)";
-
-        var pattern = Pattern.compile(templMatcher);
-        var matcher = pattern.matcher(strComd);
-
-        var keyAndValue = "";
-        String key = "";
-        String value = "";
-        if (matcher.find()) {
-            key = matcher.group(1);
-            value = matcher.group(2);
-        } else {
-            println("Команда не обработана. \nПроверьте правильность написания команды");
-        }
-
-        if (key.equals("print")) {
-            if (value.equals("all")) {
-                printAllEmploee();
-                return;
-            } else if (value.equals("item")) {
-                templMatcher = "id:(\\d++)";
-
-                pattern = Pattern.compile(templMatcher);
-                matcher = pattern.matcher(strComd);
-
-                if (matcher.find()) {
-                    printItemEmploee(Integer.parseInt(matcher.group(1)));
-                    return;
-                }
-            } else {
-                println("""
-                        Список команд для Emploees:
-                            dao emploee print:help
-                            dao emploee print:all
-                            dao emploee print:item id:Number                            
-                        """
-                );
-            }
-        }
-    }
-
     static public RecordResProc getAllEmploee() {
         RecordResProc res = null;
 
@@ -86,16 +45,18 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
                         ));
             }
 
-            res = new RecordResProc(true, "ok", lsEmploee);
+            res = new RecordResProc(lsEmploee);
 
         } catch (SQLException ex) {
-            res = new RecordResProc(false, ex.getMessage(), null);
+            res = RecordResProc.getResultErr (ex.getMessage());
         }
 
         return res;
     }
 
     static public void printAllEmploee() {
+        APIerror.resetErr();
+
         var resEmploee = getAllEmploee();
         if (!resEmploee.res()) {
             APIerror.setError("Нет данных по сотрудникам");
@@ -108,11 +69,11 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
                 println(str);
             }
         } catch (SQLException ex) {
-            println("err:\n" + ex.getMessage());
+            APIerror.setError("err:\n" + ex.getMessage());
         }
     }
 
-    static private int getMaxId(){
+    static public int getMaxId(){
         var sql = """
                 SELECT  CASE
                     	when (select EXISTS(select * from Emploees e )) > 0
@@ -126,6 +87,9 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
     }
 
     static public void printItemEmploee(int id) {
+
+        APIerror.resetErr();
+
         try (Connection conn = APIsqlite.Connect.getConnect()) {
             var statement = conn.prepareStatement(SQL_SELECT_EMPLOEE_ID);
             statement.setInt(1, id);
@@ -140,11 +104,11 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
             }
 
         } catch (SQLException ex) {
-            println("err findEntityById:\n" + ex.getMessage());
+            APIerror.setError("err findEntityById:\n" + ex.getMessage());
         }
     }
 
-    private RecordResProcExt verfExistsEmploee(int id) {
+    public RecordResProcExt verfExistsEmploee(int id) {
         var sql = String.format(SQL_VERF_EXISTS, id);
 
         return DAOcomnAPI.getDataFromSQLscript(sql);
@@ -153,37 +117,41 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
     // ------------ Overrride -----------------------
     @Override
     public Emploee findEntityById(int id) {
-        Emploee resProc = null;
+        APIerror.resetErr();
+
+        Emploee emploee = null;
         try (Connection conn = APIsqlite.Connect.getConnect()) {
             var statement = conn.prepareStatement(SQL_SELECT_EMPLOEE_ID);
             statement.setInt(1, id);
 
             var rs = statement.executeQuery();
-
-            var isUse = true;
-
             if (rs.next()) {
-                resProc = new Emploee(
+                emploee = new Emploee(
                         rs.getInt(1),
                         rs.getString(2),
                         rs.getInt(3),
                         rs.getInt(4));
-                isUse = rs.getInt(5) > 0 ? true : false;
+
+                var idUse = APIdevl.getBooleanFromStr(rs.getString(5));
+                emploee.setIdUse(idUse);
             }
-            resProc.setIdUse(isUse);
+
+            return emploee;
 
         } catch (SQLException ex) {
-            println("err findEntityById:\n" + ex.getMessage());
+            APIerror.setError("err findEntityById:\n" + ex.getMessage().indent(3));
+            return null;
         }
-        return resProc;
     }
 
     @Override
     public RecordResProc delete(int id) {
 
         var emploee = findEntityById(id);
-        if (emploee == null){
+        if (emploee == null && !APIerror.getErr()){
             return RecordResProc.getResultErr("Нет данных по сотруднику в БД");
+        } else if(APIerror.getErr()){
+            return RecordResProc.getResultErr(APIerror.getMes());
         }
 
         if (!emploee.getIdUse()){
@@ -218,10 +186,20 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
     @Override
     public Emploee update(Emploee emploee, String arrFields) {
 
+        APIerror.resetErr();
+
+        // ----------- верификация входящих данных
         if (arrFields.isEmpty()) {
             APIerror.setError("Данные не изменились");
             return null;
         }
+
+        if (findEntityById(emploee.getId()) == null){
+            APIerror.setError("Сотрудник не найден");
+            return null;
+        }
+
+        // -------------------------
 
         var str = "";
         for (var s : arrFields.split("\n")) {
@@ -232,7 +210,8 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
             } else if (s.equalsIgnoreCase("positionId")) {
                 buf = "positionId = " + emploee.getPositionId();
             } else {
-                continue;
+                APIerror.setError(s + " не известный тип поля");
+                return null;
             }
 
             if (!buf.isEmpty()) {

@@ -46,7 +46,6 @@ public class DAOcomnAPI {
             res = new RecordResProcExt(resStr);
         }
         catch (SQLException ex){
-            println("err: \n" + ex.getMessage());
             res = RecordResProcExt.getExtResultErr (ex.getMessage());
         }
 
@@ -68,7 +67,6 @@ public class DAOcomnAPI {
             res = new RecordResProcExt(resStr);
         }
         catch (SQLException ex){
-            println("err: \n" + ex.getMessage());
             res = RecordResProcExt.getExtResultErr (ex.getMessage());
         }
 
