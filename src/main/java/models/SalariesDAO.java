@@ -1,49 +1,45 @@
 package models;
 
+import devlAPI.APIdevl;
 import devlAPI.APIerror;
 import devlRecord.RecordResProc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
+import static devlAPI.APIyymm.*;
 
 /**
  * DAO обработка данных по начислениям заработной платы
  */
 public class SalariesDAO extends DAOabstract<Salaries> {
 
-    private static Salaries[] arrSalaries;
-
     public static Salaries[] getArrSalaries(int yymm) {
         return null;
     }
 
-    private static int getCurrentYYMM() {
-        var date = LocalDate.now();
-        var yy = date.getYear();
-        var mm = date.getMonth().getValue();
+    public static boolean verfExistsData(){
+        APIerror.resetErr();
 
-        return yy * 100 + mm;
-    }
+        var sql = """
+                SELECT  CASE
+                    	when (select EXISTS(select * from Salaries s)) > 0 \
+                    			THEN 1 \
+                    	ELSE 0 
+                    END salary
+                """;
 
-    public static int incYYMM(int yymm) {
-
-        if (yymm == 0) {
-            return getCurrentYYMM();
+        var resSql = DAOcomnAPI.getDataFromSQLscript(sql);
+        if (!resSql.res()) {
+            APIerror.setError(resSql.mes());
+            return false;
         }
 
-        int yy = yymm / 100;
-        int mm = yymm % 100;
-
-        var dateLast = LocalDate.of((yy+2000), mm, 1);
-        var dateNext = dateLast.plusMonths(1);
-
-        return (dateNext.getYear() - 2000) * 100 + dateNext.getMonth().getValue();
+        return APIdevl.getBooleanFromStr(resSql.strData());
     }
 
     public static boolean verfExistsData(int yymm) {
+        APIerror.resetErr();
 
         var sql = String.format("""
                 SELECT  CASE
@@ -59,29 +55,12 @@ public class SalariesDAO extends DAOabstract<Salaries> {
             return false;
         }
 
-        var res = Integer.parseInt(resSql.strData());
-        return res > 0;
-    }
-
-    public static int getMaxYYMM() {
-        var sql = """
-                SELECT  CASE
-                    	when (select EXISTS(select * from Salaries s)) > 0
-                    			THEN (select max(yymm) from Salaries s2)
-                    	ELSE 0
-                    END salary
-                """;
-
-        var resSql = DAOcomnAPI.getDataFromSQLscript(sql);
-        if (!resSql.res()) {
-            APIerror.setError(resSql.mes());
-            return -1;
-        }
-
-        return Integer.parseInt(resSql.strData());
+        return APIdevl.getBooleanFromStr(resSql.strData());
     }
 
     public static int getMaxId() {
+
+        APIerror.resetErr();
 
         var sql = "select ifnull(max(id), 0) from Salaries s";
         var resSql = DAOcomnAPI.getDataFromSQLscript(sql);
@@ -101,18 +80,31 @@ public class SalariesDAO extends DAOabstract<Salaries> {
 
     }
 
-    public static RecordResProc setSalaries(int yymm) {
-            /*INSERT INTO Salaries (id, yymm, emploeesId, salary)
-                VALUES(0, 0, 0, 0);*/
+    public static RecordResProc addSalaries(int yymm) {
+
+        APIerror.resetErr();
 
         var MaxId = getMaxId();
         if (APIerror.getErr()) {
             return RecordResProc.getResultErr(APIerror.getMes());
         }
 
-        var lastYYMM = getMaxYYMM();
+        var lastYYMM = getLastYYMM();
         if (APIerror.getErr()) {
             return RecordResProc.getResultErr(APIerror.getMes());
+        }
+
+        if (lastYYMM > 0 && yymm <= lastYYMM){
+            return RecordResProc.getResultErr("Отмена операции: повторное начисление");
+        }
+
+        var currYYMM = getCurrentYYMM();
+        if (APIerror.getErr()){
+            return RecordResProc.getResultErr(APIerror.getMes());
+        }
+
+        if (yymm > currYYMM){
+            return RecordResProc.getResultErr("Интервал не соответствует расчетному месяцу");
         }
 
         MaxId++;
@@ -130,9 +122,9 @@ public class SalariesDAO extends DAOabstract<Salaries> {
                     continue;
                 }
                 sb.append("," + String.format("(%d,%d,%d,%d)",
-                        MaxId++, yymm, item.getId(), item.getSalary(conn)) + "\n");
-
-
+                        MaxId++, yymm,
+                        item.getId(),
+                        item.getSalary(conn)) + "\n");
             }
 
             var statMent = conn.createStatement();
@@ -143,8 +135,9 @@ public class SalariesDAO extends DAOabstract<Salaries> {
         } catch (SQLException ex){
             return RecordResProc.getResultErr(ex.getMessage());
         }
-
     }
+
+    public static
 
     // ----------------- Override
 

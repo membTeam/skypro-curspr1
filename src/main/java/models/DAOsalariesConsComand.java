@@ -7,6 +7,8 @@ import devlAPI.enumType.EModfModels;
 import devlRecord.RecordComdParams;
 import devlRecord.RecordResProc;
 
+import java.lang.module.ModuleDescriptor;
+
 public class DAOsalariesConsComand {
 
     private static RecordComdParams[] arrRecComdParams;
@@ -14,12 +16,6 @@ public class DAOsalariesConsComand {
     private static EMOdfSalaries eModfSalaries;
 
     public static RecordResProc initInstenceForConsComd(RecordComdParams[] arrComdParams){
-        var method = arrComdParams[0].value();
-        var eModfSalalies = switch (method) {
-            case "add" -> EMOdfSalaries.ADD_SALARIES;
-            case "ls" -> EMOdfSalaries.GET_LS_SALARIES;
-            default -> EMOdfSalaries.EMPTY;
-        };
 
         int yymm;
         try{
@@ -28,32 +24,34 @@ public class DAOsalariesConsComand {
             return RecordResProc.getResultErr("Ошибка yymm д. быть число");
         }
 
-        // ls
-        if (eModfSalalies == EMOdfSalaries.GET_LS_SALARIES){
-            var salareesComb = new SalariesCombine(yymm);
-            salareesComb.loadDataSalariesExt();
+        var method = arrComdParams[0].value();
+        var res = switch (method) {
+            case "add" -> addSalaries(yymm);
+            case "ls" -> printArrSalarees(yymm);
+            default -> RecordResProc.getResultErr(
+                    String.format("(%s) нет такой команды", method));
+        };
 
-            IRunComd iRunComd = salareesComb::printArrSalarees;
-            return new RecordResProc(iRunComd);
-        }
-
-        return new RecordResProc();
+        return res;
     }
 
-    public static void setEmodfSalaries(EMOdfSalaries eModf){
-        eModfSalaries = eModf;
+    private static RecordResProc addSalaries(int yymm) {
+
+
+        return null;
     }
+
+    private static RecordResProc printArrSalarees(int yymm) {
+        var salareesComb = new SalariesCombine(yymm);
+        salareesComb.loadDataSalariesExt();
+
+        IRunComd iRunComd = salareesComb::printArrSalarees;
+        return new RecordResProc(iRunComd);
+    }
+
 
     public static String getConsoleParameter(){
         return "cmd ls add yymm";
-    }
-
-    public static void setArrRecComdParams(RecordComdParams[] arr){
-        arrRecComdParams = arr;
-    }
-
-    public static void runConsCommand(){
-
     }
 
 }
