@@ -1,6 +1,5 @@
 package devlAPI;
 
-import DevlInterface.IRunComd;
 import devlRecord.RecRunComd;
 import devlRecord.RecordComdParams;
 import devlRecord.RecordResProc;
@@ -24,23 +23,19 @@ public class ConsRunComand {
                 "help dao emploee -> шаблон команды для изм. справочника по сотрудникам",
         };
 
-        IRunComd iListComd = () -> {
-            for (var item : lsComd) {
-                println(item);
-            }
-        };
-
         arrRecordComd = new RecRunComd[]{
-                new RecRunComd("print comands", iListComd),
+                new RecRunComd("print comands", () -> {
+                                    for (var item : lsComd) {
+                                        println(item);
+                                    }  }),
                 new RecRunComd("print department", DepartmentDAO::printAllDepartment),
                 new RecRunComd("print position", PositionsDAO::printAllPosition),
                 new RecRunComd("print emploee", EmploeeDAO::printAllEmploee),
-                new RecRunComd("help dao emploee", ()->{
+                new RecRunComd("help dao emploee", () -> {
                     var strPrint = """
-                                dao emploee --cmd ins --id 0 -> ввод нового сотрудника
-                                dao emploee --cmd upd --id 2 -> изменение данных сотрудника
-                                dao emploee --cmd del --id 2 -> удаление сотрудника
-                                """;
+                            dao emploee --cmd ins --id 0 -> ввод нового сотрудника
+                            dao emploee --cmd upd --id 2 -> изменение данных сотрудника
+                            dao emploee --cmd del --id 2 -> удаление сотрудника""";
                     println(strPrint.indent(5));
                 }),
         };

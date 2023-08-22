@@ -1,8 +1,7 @@
 package org.curspr;
 
 import DevlInterface.IRunComd;
-import devlAPI.APIerror;
-import devlAPI.ConsParser;
+import devlAPI.ConsRunComand;
 import models.DAObaseConsComand;
 
 import java.util.Scanner;
@@ -39,8 +38,8 @@ public class App {
                     break;
                 }
 
-                var resConsComd = ConsParser.menedjConsoleComd(strInput);
-
+                var consComd = new ConsRunComand(strInput);
+                var resConsComd = consComd.runConsoleComd();
                 if (!resConsComd.res()) {
                     println(resConsComd.mes());
                     println("");
