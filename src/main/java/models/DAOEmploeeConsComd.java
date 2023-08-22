@@ -1,5 +1,6 @@
 package models;
 
+import DevlInterface.IRunComd;
 import devlAPI.APIerror;
 import devlAPI.ConsParserItem;
 import devlAPI.enumType.EModfModels;
@@ -27,7 +28,7 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
 
     // ---------------- static
     public static String getConsoleParameter(){
-        return "cmd id";
+        return "cmd id pr gr";
     }
 
     public static RecordResProc initInstenceConsComand(RecordComdParams[] arrComdParams){
@@ -37,6 +38,7 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
             case "upd" -> EModfModels.UPDATE;
             case "ins" -> EModfModels.INSERT;
             case "del" -> EModfModels.DELETE;
+            case "pr"  -> EModfModels.PRINT;
             default -> EModfModels.EMPTY;
         };
 
@@ -50,6 +52,12 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
             id = eModfModel == EModfModels.INSERT ? -1 : Integer.parseInt(strId);
         } catch (NumberFormatException es) {
             return RecordResProc.getResultErr("Ошибка id д. быть число");
+        }
+
+        // Вывод сообщения в консоль
+        if (eModfModel == EModfModels.PRINT){
+            EmploeeDAO.setIdAnyData(id);
+            return new RecordResProc((IRunComd) EmploeeDAO::printEmploeesForDepartment);
         }
 
         var daoBaseConsComd = new DAOEmploeeConsComd(id, eModfModel);
@@ -236,8 +244,6 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
         if (resUpd == null) {
             return RecordResProc.getResultErr(APIerror.getMes());
         } else {
-
-
 
             return new RecordResProc(resUpd);
         }

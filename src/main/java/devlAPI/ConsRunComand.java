@@ -35,7 +35,9 @@ public class ConsRunComand {
                     var strPrint = """
                             dao emploee --cmd ins --id 0 -> ввод нового сотрудника
                             dao emploee --cmd upd --id 2 -> изменение данных сотрудника
-                            dao emploee --cmd del --id 2 -> удаление сотрудника""";
+                            dao emploee --cmd del --id 2 -> удаление сотрудника
+                            dao emploee --cmd pr --gr 2 -> список сотрудников по отделу
+                            """;
                     println(strPrint.indent(5));
                 }),
         };

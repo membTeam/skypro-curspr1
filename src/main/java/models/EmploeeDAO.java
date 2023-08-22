@@ -5,9 +5,7 @@ import devlAPI.APIerror;
 import devlRecord.RecordResProc;
 import devlRecord.RecordResProcExt;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Struct;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -25,6 +23,11 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
     private static RecordResProc resProcOk = new RecordResProc(true, "ok", null);
 
     // ----------------------------
+
+    private static int idAnyData;
+    public static void setIdAnyData(int id){
+        idAnyData = id;
+    }
 
     static public RecordResProc getAllEmploee() {
         RecordResProc res = null;
@@ -48,10 +51,37 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
             res = new RecordResProc(lsEmploee);
 
         } catch (SQLException ex) {
-            res = RecordResProc.getResultErr (ex.getMessage());
+            res = RecordResProc.getResultErr(ex.getMessage());
         }
 
         return res;
+    }
+
+    static public void printEmploeesForDepartment() {
+        APIerror.resetErr();
+
+        var sql = String.format("""
+                select p.jobTitle, e.fullName, p.salary \
+                	from Emploees e, Positions p, Departments d \
+                	WHERE e.departmentsId = d.Id and e.positionId = p.id and d.Id = %d \
+                	order by departmentsId, positionId ;
+                """, idAnyData);
+
+        try (Connection conn = APIsqlite.Connect.getConnect()) {
+            Statement statement = conn.createStatement();
+                ResultSet rs = statement.executeQuery(sql);
+                while (rs.next()) {
+                    println(
+                            String.format("%20s %-20s %d",
+                                    rs.getString(1),
+                                    rs.getString(2),
+                                    rs.getInt(3)));
+            }
+
+        } catch (SQLException ex) {
+            APIerror.setError(ex.getMessage());
+        }
+
     }
 
     static public void printAllEmploee() {
@@ -73,7 +103,7 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
         }
     }
 
-    static public int getMaxId(){
+    static public int getMaxId() {
         var sql = """
                 SELECT  CASE
                     	when (select EXISTS(select * from Emploees e )) > 0
@@ -148,13 +178,13 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
     public RecordResProc delete(int id) {
 
         var emploee = findEntityById(id);
-        if (emploee == null && !APIerror.getErr()){
+        if (emploee == null && !APIerror.getErr()) {
             return RecordResProc.getResultErr("Нет данных по сотруднику в БД");
-        } else if(APIerror.getErr()){
+        } else if (APIerror.getErr()) {
             return RecordResProc.getResultErr(APIerror.getMes());
         }
 
-        if (!emploee.getIdUse()){
+        if (!emploee.getIdUse()) {
             return RecordResProc.getResultErr("Сотрудник помечен на удаление");
         }
 
@@ -172,12 +202,12 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
     public RecordResProc create(Emploee entity) {
         var keyId = getMaxId() + 1;
         var sql = String.format("""
-                insert into Emploees(id, fullName, departmentsId, positionId, idUse)
-                values(%d,'%s',%d,%d,1)
-                """, keyId,
-                        entity.getFullName(),
-                        entity.getDepartmentsId(),
-                        entity.getPositionId());
+                        insert into Emploees(id, fullName, departmentsId, positionId, idUse)
+                        values(%d,'%s',%d,%d,1)
+                        """, keyId,
+                entity.getFullName(),
+                entity.getDepartmentsId(),
+                entity.getPositionId());
 
         return DAOcomnAPI.modfModelFromSQLscript(sql);
     }
@@ -193,7 +223,7 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
             return null;
         }
 
-        if (findEntityById(emploee.getId()) == null){
+        if (findEntityById(emploee.getId()) == null) {
             APIerror.setError("Сотрудник не найден");
             return null;
         }

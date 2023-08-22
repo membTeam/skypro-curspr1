@@ -15,7 +15,7 @@ public class EmploeeDAOTest {
 
     @Test
     public void findEntityById_withExistsItem_test(){
-        println("testing EmploeeDAO.findEntityById exist item");
+        println("testing findEntityById_withExistsItem_test");
 
         var emploeeDAO = new  EmploeeDAO();
         var id = 2;
@@ -29,7 +29,7 @@ public class EmploeeDAOTest {
 
     @Test
     public void findEntityById_withNotExistsItem_test(){
-        println("testing EmploeeDAO.findEntityById not exists item");
+        println("testing findEntityById_withNotExistsItem_test");
 
         var emploeeDAO = new  EmploeeDAO();
         var id = 200;
@@ -42,7 +42,7 @@ public class EmploeeDAOTest {
 
     @Test
     public void verfExistsEmploee_withExistsItem_test(){
-        println("testing EmploeeDAO.verfExistsEmploee exist item");
+        println("verfExistsEmploee_withExistsItem_test");
 
         var id = 2;
         var emploeeDAO = new EmploeeDAO();
@@ -58,7 +58,7 @@ public class EmploeeDAOTest {
 
     @Test
     public void verfExistsEmploee_withNotExistsItem_test(){
-        println("testing EmploeeDAO.verfExistsEmploee not item");
+        println("testing verfExistsEmploee_withNotExistsItem_test");
 
         APIerror.resetErr();
 
@@ -75,7 +75,7 @@ public class EmploeeDAOTest {
 
     @Test
     public void printItemEmploee_withExistsItem_test() {
-        println("testing EmploeeDAO.printItemEmploee");
+        println("testing printItemEmploee_withExistsItem_test");
         EmploeeDAO.printItemEmploee(2);
 
         // assert
@@ -84,7 +84,7 @@ public class EmploeeDAOTest {
 
     @Test
     public void printItemEmploee_withNotItem_test() {
-        println("testing EmploeeDAO.printItemEmploee");
+        println("testing printItemEmploee_withNotItem_test");
         EmploeeDAO.printItemEmploee(200);
 
         // assert
@@ -93,7 +93,7 @@ public class EmploeeDAOTest {
 
     @Test
     public void getAllEmploee_test() {
-        println("testing EmploeeDAO.getAllEmploee");
+        println("testing getAllEmploee_test");
 
         var res = EmploeeDAO.getAllEmploee();
 
@@ -103,7 +103,7 @@ public class EmploeeDAOTest {
 
     @Test
     public void getMaxId_test() {
-        println("testing EmploeeDAO.getMaxId");
+        println("testing getMaxId_test");
 
         // assert
         Assertions.assertTrue(EmploeeDAO.getMaxId() > 0);
@@ -111,7 +111,7 @@ public class EmploeeDAOTest {
 
     @Test
     public void printAllEmploee_test() {
-        println("testing EmploeeDAO.printAllEmploee");
+        println("testing printAllEmploee_test");
 
         EmploeeDAO.printAllEmploee();
 
@@ -121,6 +121,8 @@ public class EmploeeDAOTest {
 
     @Test
     public void updata_withExists_test(){
+        println("testing updata_withExists_test");
+
         var sql = """
                    select ifnull(min(id),-1) from Emploees 
                         where idUse > 0 and fullName != 'Test Data';
@@ -149,7 +151,9 @@ public class EmploeeDAOTest {
     }
 
     @Test
-    public void updata_updateOnefield_test(){
+    public void updata_Onefield_test(){
+        println("testing updata_Onefield_test");
+
         var sql = """
                    select ifnull(min(id),-1) from Emploees 
                         where idUse > 0 and fullName != 'Test Data';
@@ -178,6 +182,8 @@ public class EmploeeDAOTest {
 
     @Test
     public void updata_withErrFields_test(){
+        println("testing updata_withErrFields_test");
+
         var sql = """
                    select ifnull(min(id),-1) from Emploees 
                         where idUse > 0 and fullName != 'Test Data';
@@ -280,6 +286,18 @@ public class EmploeeDAOTest {
         // assert
         Assertions.assertInstanceOf(RecordResProc.class, resCreate);
         Assertions.assertTrue(resCreate.res());
+    }
+
+    @Test
+    public void printEmploeesForDepartment_test(){
+        println("testing printEmploeesForDepartment_test");
+
+        EmploeeDAO.setIdAnyData(2);
+        EmploeeDAO.printEmploeesForDepartment();
+
+        // assert
+        Assertions.assertFalse(APIerror.getErr());
+
     }
 
 }

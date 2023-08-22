@@ -25,7 +25,7 @@ public class Positions {
     }
 
     public boolean setOnlyOne(int value){
-        this.onlyOne = value > 0;
+        return this.onlyOne = value > 0;
     }
     public boolean getOnlyOne(){
         return onlyOne;
