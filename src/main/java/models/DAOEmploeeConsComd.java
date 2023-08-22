@@ -236,6 +236,9 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
         if (resUpd == null) {
             return RecordResProc.getResultErr(APIerror.getMes());
         } else {
+
+
+
             return new RecordResProc(resUpd);
         }
     }

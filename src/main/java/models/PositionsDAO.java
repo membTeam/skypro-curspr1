@@ -1,6 +1,7 @@
 package models;
 
 import APIsqlite.Connect;
+import devlAPI.APIerror;
 import devlRecord.RecordResProc;
 import devlRecord.RecordResProcExt;
 import devlAPI.APIdevl;
@@ -123,6 +124,25 @@ public class PositionsDAO {
 
         return new RecordResProcExt(true, "ok", resSQL.strData(), 0);
 
+    }
+
+    public static boolean isExistsPositionInDepartment(int id){
+        APIerror.resetErr();
+
+        var sql = String.format("""
+                select exists(\
+                	select * from Emploees e \
+                		WHERE idUse > 0 \
+                			and departmentsId = %departmentsId \
+                			and positionId in (select id from Positions p WHERE onlyOne > 0 )) res;
+                """, id);
+        var resSql = DAOcomnAPI.getDataFromSQLscript(sql);
+        if (!resSql.res()){
+            APIerror.setError(resSql.mes());
+            return false;
+        }
+
+        return APIdevl.getBooleanFromStr(resSql.strData());
     }
 
 }

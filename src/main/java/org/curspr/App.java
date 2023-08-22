@@ -39,6 +39,7 @@ public class App {
                 }
 
                 var consComd = new ConsRunComand(strInput);
+
                 var resConsComd = consComd.runConsoleComd();
                 if (!resConsComd.res()) {
                     println(resConsComd.mes());

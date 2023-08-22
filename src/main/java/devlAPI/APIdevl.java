@@ -27,11 +27,4 @@ public class APIdevl {
         return value.replace(arg, String.valueOf(argInt));
     }
 
-    public static int getCurrentYear() {
-        var calendar = Calendar.getInstance();
-        int yyyy = calendar.get(Calendar.YEAR);
-
-        return yyyy;
-    }
-
 }

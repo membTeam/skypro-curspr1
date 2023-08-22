@@ -170,7 +170,6 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
 
     @Override
     public RecordResProc create(Emploee entity) {
-
         var keyId = getMaxId() + 1;
         var sql = String.format("""
                 insert into Emploees(id, fullName, departmentsId, positionId, idUse)

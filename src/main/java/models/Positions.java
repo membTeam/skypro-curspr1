@@ -9,6 +9,7 @@ public class Positions {
     private String jobTitle;
     private int salary;     // только для Администратор
     private int numLimit;   // только для Администратор
+    private boolean onlyOne;
 
     public Positions(int id, String jobTitle, int salary, int numLimit){
         this.id = id;
@@ -21,6 +22,13 @@ public class Positions {
     public String toString(){
         var strFormat = String.format("id:%2d %6d \t limit:%2d %s", id, salary, numLimit, jobTitle );
         return strFormat.toString();
+    }
+
+    public boolean setOnlyOne(int value){
+        this.onlyOne = value > 0;
+    }
+    public boolean getOnlyOne(){
+        return onlyOne;
     }
 
     public int getNumLimit() {
