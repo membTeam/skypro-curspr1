@@ -16,10 +16,6 @@ import static devlAPI.APIprintService.println;
 
 public class DepartmentDAO extends DAOabstract<Department> {
 
-    //private final String SQL_SELECT_ALL_DEPARMENT = "select * from Departments d;";
-    //private final String SQL_SELECT_EMPLOEE_ID = "select * from Departments d WHERE id = 1;";
-
-
     // --------------- static
     public static RecordResProc getArrayModel(int id) {
         //RecordResProc res = null;

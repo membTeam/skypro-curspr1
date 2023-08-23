@@ -8,7 +8,6 @@ import devlRecord.RecordResProcExt;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static devlAPI.APIprintService.println;
 
@@ -24,9 +23,9 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
 
     // ----------------------------
 
-    private static int idAnyData;
-    public static void setIdAnyData(int id){
-        idAnyData = id;
+    private static int idValue;
+    public static void setIdValue(int id){
+        idValue = id;
     }
 
     static public RecordResProc getAllEmploee() {
@@ -66,7 +65,7 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
                 	from Emploees e, Positions p, Departments d \
                 	WHERE e.departmentsId = d.Id and e.positionId = p.id and d.Id = %d \
                 	order by departmentsId, positionId ;
-                """, idAnyData);
+                """, idValue);
 
         try (Connection conn = APIsqlite.Connect.getConnect()) {
             Statement statement = conn.createStatement();

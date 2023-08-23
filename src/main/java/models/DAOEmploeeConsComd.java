@@ -56,7 +56,7 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
 
         // Вывод сообщения в консоль
         if (eModfModel == EModfModels.PRINT){
-            EmploeeDAO.setIdAnyData(id);
+            EmploeeDAO.setIdValue(id);
             return new RecordResProc((IRunComd) EmploeeDAO::printEmploeesForDepartment);
         }
 

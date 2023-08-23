@@ -298,7 +298,7 @@ public class EmploeeDAOTest {
     public void printEmploeesForDepartment_test(){
         println("testing printEmploeesForDepartment_test");
 
-        EmploeeDAO.setIdAnyData(2);
+        EmploeeDAO.setIdValue(2);
         EmploeeDAO.printEmploeesForDepartment();
 
         // assert

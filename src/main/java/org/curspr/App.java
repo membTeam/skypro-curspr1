@@ -47,32 +47,33 @@ public class App {
                     continue;
                 }
 
-                if (resConsComd.data() != null && resConsComd.data() instanceof IRunComd) {
-                    ((IRunComd) resConsComd.data()).apply();
+                if (resConsComd.data() != null) {
+                    if (resConsComd.data() instanceof IRunComd) {
+                        ((IRunComd) resConsComd.data()).apply();
 
-                } else if (resConsComd.data() != null
-                        && resConsComd.data() instanceof DAObaseConsComand) {
+                    } else if (resConsComd.data() instanceof DAObaseConsComand) {
 
-                    var resDaoConsComd = (DAObaseConsComand) resConsComd.data();
+                        var resDaoConsComd = (DAObaseConsComand) resConsComd.data();
 
-                    strInput = "";
-                    String prMes;
-                    while (!(prMes = resDaoConsComd.nextStr(strInput)).isEmpty()) {
-                        print(prMes);
-                        strInput = scanner.nextLine();
-                    }
+                        strInput = "";
+                        String prMes;
+                        while (!(prMes = resDaoConsComd.nextStr(strInput)).isEmpty()) {
+                            print(prMes);
+                            strInput = scanner.nextLine();
+                        }
 
-                    // Вывод результата
-                    var resSave = resDaoConsComd.saveModel();
-                    if (resSave.res()) {
-                        if (resSave.data() != null) {
-                            println(resSave.data().toString());
+                        // Вывод результата
+                        var resSave = resDaoConsComd.saveModel();
+                        if (resSave.res()) {
+                            if (resSave.data() != null) {
+                                println(resSave.data().toString());
+                            } else {
+                                println(resSave.mes());
+                            }
+
                         } else {
                             println(resSave.mes());
                         }
-
-                    } else {
-                        println(resSave.mes());
                     }
                 }
 
