@@ -133,23 +133,41 @@ public class PositionsDAO {
 
     }
 
-    public static boolean isExistsPositionInDepartment(int id){
+    public static boolean isExistsPositionInDepartment(int departmentId, int positionId){
         APIerror.resetErr();
 
         var sql = String.format("""
-                select exists(\
-                	select * from Emploees e \
-                		WHERE idUse > 0 \
-                			and departmentsId = %departmentsId \
-                			and positionId in (select id from Positions p WHERE onlyOne > 0 )) res;
-                """, id);
-        var resSql = DAOcomnAPI.getDataFromSQLscript(sql);
-        if (!resSql.res()){
-            APIerror.setError(resSql.mes());
+                DROP table if exists buf;
+                CREATE temp table buf(
+                	positionId integer
+                );
+                INSERT into buf(positionId)
+                select positionId from Emploees e \
+                			WHERE idUse > 0 \
+                				and departmentsId = %d \
+                				and positionId in (select id from Positions p WHERE onlyOne > 0 );
+                """, departmentId);
+        var sqlQuery = String.format("select exists(SELECT * from buf WHERE positionId = %d) res", positionId);
+
+        try(Connection conn = APIsqlite.Connect.getConnect()){
+            var stateUpdate = conn.createStatement();
+            var stateQuery = conn.createStatement();
+
+            stateUpdate.executeUpdate(sql);
+            var rs = stateQuery.executeQuery(sqlQuery);
+            boolean resQuery = false;
+            while (rs.next()){
+                var buf = rs.getString(1);
+                resQuery = APIdevl.getBooleanFromStr(buf);
+            }
+
+            return resQuery;
+
+        } catch (Exception ex){
+            APIerror.setError(ex.getMessage());
             return false;
         }
 
-        return APIdevl.getBooleanFromStr(resSql.strData());
     }
 
 }

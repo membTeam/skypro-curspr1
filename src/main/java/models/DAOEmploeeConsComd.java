@@ -230,6 +230,14 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
                     return RecordResProc.getResultErr("Штатное расписание заполнено.");
                 }
 
+                var existsPositionIsOne = PositionsDAO.isExistsPositionInDepartment(model.getDepartmentId(), inputPositionId);
+                if (APIerror.getErr()){
+                    return RecordResProc.getResultErr(APIerror.getMes());
+                }
+                if (existsPositionIsOne){
+                    return RecordResProc.getResultErr("Есть сотрудник на этой должности (только один сотрудник)");
+                }
+
                 model.setPositionId(inputPositionId);
                 stringBuffer.append("positionId\n");
             }
@@ -292,6 +300,15 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
                 return RecordResProc.getResultErr(APIerror.getMes());
             } else if (verLimit < 0) {
                 return RecordResProc.getResultErr("Штатное расписание заполнено.");
+            }
+
+            var existsPositionIsOne =
+                    PositionsDAO.isExistsPositionInDepartment(emploee.getDepartmentId(), inputPositionId);
+            if (APIerror.getErr()){
+                return RecordResProc.getResultErr(APIerror.getMes());
+            }
+            if (existsPositionIsOne){
+                return RecordResProc.getResultErr("Есть сотрудник на этой должности (только один сотрудник)");
             }
 
             emploee.setPositionId(inputPositionId);
