@@ -20,13 +20,17 @@ public class Salaries {
 
     // -----------------
 
+    public int getYymm(){
+        return yymm;
+    }
+
     @Override
     public String toString() {
         return String.format("%d yymm:%d emplId:%-3d %d",id, yymm, emploeesId, salary );
     }
 
     public String toStringExt() {
-        return String.format("%d yymm:%d emplId:%-3d %d руб. %s",id, yymm, emploeesId, salary, fullName );
+        return String.format("%d yymm:%d emplId:%-3d %6d руб. %s",id, yymm, emploeesId, salary, fullName );
     }
 
 }

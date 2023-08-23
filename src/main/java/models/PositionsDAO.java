@@ -88,7 +88,7 @@ public class PositionsDAO {
         var sql = """
                 SELECT  CASE
                     when (select EXISTS(select * from Positions p WHERE id = %id)) > 0
-                            THEN (select salary  from Positions p2 WHERE id = %id)
+                            THEN (select cast(salary as integer) from Positions p2 WHERE id = %id)
                     ELSE -1
                   END salary
                 """;
@@ -98,8 +98,15 @@ public class PositionsDAO {
                 ? DAOcomnAPI.getDataFromSQLscript(sql)
                 : DAOcomnAPI.getDataFromSQLscript(conn, sql);
 
+        int salary;
+        try{
+            salary = Integer.parseInt((resSQL.strData()));
+        } catch (NumberFormatException ex) {
+            salary = 0;
+        }
+
         res = new RecordResProcExt(true,
-                "ok","ok", Integer.parseInt((resSQL.strData())));
+                "ok","ok", salary);
 
         return res;
     }

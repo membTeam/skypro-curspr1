@@ -68,7 +68,7 @@ public class SalariesDAOTest {
         var addSalaries = SalariesDAO.addSalaries(yymm);
 
         // assert
-        if (yymm <= yymmCurr){
+        if (yymm <= yymmCurr) {
             Assertions.assertTrue(addSalaries.res());
             Assertions.assertInstanceOf(RecordResProc.class, addSalaries);
 
@@ -77,9 +77,7 @@ public class SalariesDAOTest {
         } else {
             Assertions.assertFalse(addSalaries.res());
             Assertions.assertInstanceOf(RecordResProc.class, addSalaries);
-
         }
-
     }
 
     @Test
@@ -96,7 +94,6 @@ public class SalariesDAOTest {
         } else {
             println("Нет данных для тестирования");
         }
-
     }
 
     @Test
@@ -110,6 +107,24 @@ public class SalariesDAOTest {
 
         // assert
         Assertions.assertFalse(addSalaries.res());
+
+    }
+
+    //
+    @Test
+    public void addSalaries_add_forYYMM_test() {
+        println("addSalaries_add_forYYMM_test");
+
+        var yymm = 2308;
+        var addSalaries = SalariesDAO.addSalaries(yymm);
+
+        if (!addSalaries.res()){
+            println(addSalaries.mes());
+        }
+
+        // assert
+        //Assertions.assertFalse(addSalaries.res());
+
 
     }
 

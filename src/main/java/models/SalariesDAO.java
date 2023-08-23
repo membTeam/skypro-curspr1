@@ -1,5 +1,6 @@
 package models;
 
+import DevlInterface.IRunComd;
 import devlAPI.APIdevl;
 import devlAPI.APIerror;
 import devlAPI.APIfiles;
@@ -17,10 +18,75 @@ import static devlAPI.APIyymm.*;
 /**
  * DAO обработка данных по начислениям заработной платы
  */
-public class SalariesDAO extends DAOabstract<Salaries> {
+public class SalariesDAO {
 
-    public static Salaries[] getArrSalaries(int yymm) {
-        return null;
+    /*public static void getArrSalaries(int yymm) {
+
+        APIerror.resetErr();
+
+        var sql = String.format("""
+                select s.yymm, s.salary, e.fullName, p.jobTitle \
+                    from Salaries s, Emploees e, Positions p \
+                WHERE s.emploeesId = e.id \
+                    and e.positionId = p.id \
+                    and yymm = %d order by e.departmentsId, e.positionId ;
+                """, yymm);
+        try(Connection conn = APIsqlite.Connect.getConnect()){
+            var stateQuery = conn.createStatement();
+            var rs = stateQuery.executeQuery(sql);
+
+            while (rs.next()){
+                println(String.format("%d %d %20s %20s",
+                        rs.getInt(1),
+                        rs.getInt(2),
+                        rs.getString(3),
+                        rs.getString(4) ));
+            }
+
+        } catch (Exception ex){
+            APIerror.setError(ex.getMessage());
+        }
+    }*/
+
+    public static RecordResProc incrSalaries(int proc){
+        var readFile = APIfiles.readFile("emplAdd_salaries.sql", ETypeFile.SQL_CODE);
+        if (!readFile.res()){
+            return RecordResProc.getResultErr("Файл emplAdd_salaries.sql не найден");
+        }
+
+        var sql = readFile.strData();
+        var sqlQuery = "SELECT id, jobTitle, salBase, salEnd from buf;";
+
+        try(Connection conn = APIsqlite.Connect.getConnect()){
+
+            var stateMent = conn.createStatement();
+            var stateQuery = conn.createStatement();
+
+            stateMent.executeUpdate(sql);
+            var rs = stateQuery.executeQuery(sqlQuery);
+
+            var sb = new StringBuffer("Перерасчет по заработной плате\n");
+            sb.append(String.format("Перерасчета на %d процентов\n", proc).indent(3));
+            while (rs.next()){
+                sb.append(
+                        String.format("%-25s %6d -> %d\n",rs.getString(2), rs.getInt(3), rs.getInt(4)
+                        ).indent(3));
+            }
+
+            IRunComd iRunComd = ()->{
+                var arrStr = sb.toString().split("\n");
+                for (var i=0; i < arrStr.length; i++ ){
+                    println(arrStr[i]);
+                }
+            };
+
+            return new RecordResProc(iRunComd);
+
+        } catch (SQLException ex){
+            return new RecordResProc( (IRunComd)()->{
+                    println(ex.getMessage());
+                } );
+        }
     }
 
     public static boolean verfExistsData(){
@@ -137,7 +203,7 @@ public class SalariesDAO extends DAOabstract<Salaries> {
 
             return new RecordResProc();
 
-        } catch (SQLException ex){
+        } catch (Exception ex){
             return RecordResProc.getResultErr(ex.getMessage());
         }
     }
@@ -183,25 +249,4 @@ public class SalariesDAO extends DAOabstract<Salaries> {
         }
     }
 
-    // ----------------- Override
-
-    @Override
-    public Salaries findEntityById(int id) {
-        return null;
-    }
-
-    @Override
-    public RecordResProc delete(int id) {
-        return null;
-    }
-
-    @Override
-    public RecordResProc create(Salaries entity) {
-        return null;
-    }
-
-    @Override
-    public Salaries update(Salaries entity, String arrFields) {
-        return null;
-    }
 }

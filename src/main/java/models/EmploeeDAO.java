@@ -36,21 +36,22 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
 
         try (Connection conn = APIsqlite.Connect.getConnect()) {
             var statement = conn.createStatement();
+            // select id, fullName, departmentsId, positionId  from Emploees e WHERE idUse > 0
             var rs = statement.executeQuery(SQL_SELECT_ALL_EMPLOEES);
 
             while (rs.next()) {
-                lsEmploee.add(
-                        new Emploee(
-                                rs.getInt(1),
-                                rs.getString(2),
-                                rs.getInt(3),
-                                rs.getInt(4)
-                        ));
+                var item = new Emploee(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3),
+                        rs.getInt(4)
+                );
+                lsEmploee.add( item );
             }
 
             res = new RecordResProc(lsEmploee);
 
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             res = RecordResProc.getResultErr(ex.getMessage());
         }
 
@@ -87,19 +88,26 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
     static public void printAllEmploee() {
         APIerror.resetErr();
 
-        var resEmploee = getAllEmploee();
-        if (!resEmploee.res()) {
-            APIerror.setError("Нет данных по сотрудникам");
-            return;
-        }
-
+        var sql = """
+                select e.id, fullName, p.jobTitle, cast(p.salary as integer) salary \
+                	from Emploees e, Positions p \
+                	WHERE e.positionId = p.id \
+                	and idUse > 0  order by e.departmentsId, e.positionId;
+                """;
         try (Connection conn = APIsqlite.Connect.getConnect()) {
-            for (var item : (List<Emploee>) resEmploee.data()) {
-                var str = item.toString(conn);
-                println(str);
+
+            var stateQuery = conn.createStatement();
+            var rs = stateQuery.executeQuery(sql);
+            while (rs.next()){
+                println(String.format("%3d %-20s %-20s %d руб.",
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getInt(4)
+                        ));
             }
         } catch (SQLException ex) {
-            APIerror.setError("err:\n" + ex.getMessage());
+            APIerror.setError("err:\n\t" + ex.getMessage());
         }
     }
 

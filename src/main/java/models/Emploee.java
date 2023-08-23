@@ -20,7 +20,7 @@ public class Emploee {
     public Emploee(int id, String fullName, int depatment, int position) {
 
         this.id = id;
-        this.fullName = fullName;
+        this.fullName = fullName == null ? "" : fullName;
         this.departmentsId = depatment;
         this.positionId = position;
         this.idUse = true;
@@ -62,7 +62,6 @@ public class Emploee {
         return "id:" + id
                 + " отдел:" + getDepartment(null)
                 + " " + getPosition(null)
-                + " зарплата:" + getSalary(null)
                 + " " + fullName;
     }
 

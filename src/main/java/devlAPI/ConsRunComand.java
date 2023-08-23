@@ -20,6 +20,8 @@ public class ConsRunComand {
                 "print comands -> вывести список допустимых команд",
                 "print position -> штатное расписание организации",
                 "print department -> вывод справочника по отделам",
+                "print salaries last -> Вывод последних начислений заработной платы",
+                "print salaries list -> Вывод данных по начислениям за полгода",
                 "print emploee -> Вывод справочника по сотрудникам",
                 "help dao emploee -> шаблон команды для изм. справочника по сотрудникам",
                 "help dao salaries -> статистика по выплатам на заданный период",
@@ -34,8 +36,13 @@ public class ConsRunComand {
                 new RecRunComd("print department", DepartmentDAO::printAllDepartment),
                 new RecRunComd("print position", PositionsDAO::printAllPosition),
                 new RecRunComd("print emploee", EmploeeDAO::printAllEmploee),
+                new RecRunComd("print salaries last", SalariesCombine::printArrSalareesExt),
+                new RecRunComd("print salaries list", SalariesCombine::printGroupSalaries),
                 new RecRunComd("help dao salaries", ()->{
-                            var strPrint = "dao salaries --cmd stat --yymm 2308 статистика на заданный период";
+                            var strPrint = "dao salaries --cmd stat --yymm 2308 статистика на заданный период\n"
+                                    + "dao salaries --cmd incr --pr 10 Перерасчет заработной платы на 10%\n"
+                                    + "dao salaries --cmd add --yymm 2308 Начисление заработной платы на заданный период\n"
+                                    + "dao salaries --cmd ls --yymm 2308 Список начислений на заданный период" ;
                             println(strPrint);
                         }),
                 new RecRunComd("help dao emploee", () -> {

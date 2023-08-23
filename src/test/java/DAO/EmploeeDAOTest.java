@@ -9,6 +9,8 @@ import models.EmploeeDAO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static devlAPI.APIprintService.println;
 
 public class EmploeeDAOTest {
@@ -96,6 +98,10 @@ public class EmploeeDAOTest {
         println("testing getAllEmploee_test");
 
         var res = EmploeeDAO.getAllEmploee();
+
+        for (var item : (List<Emploee>) res.data()){
+            println(item.toString());
+        }
 
         // assert
         Assertions.assertTrue(res.res());
