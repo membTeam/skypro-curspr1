@@ -2,12 +2,16 @@ package models;
 
 import devlAPI.APIdevl;
 import devlAPI.APIerror;
+import devlAPI.APIfiles;
+import devlAPI.enumType.ETypeFile;
 import devlRecord.RecStatistics;
 import devlRecord.RecordResProc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+
+import static devlAPI.APIprintService.println;
 import static devlAPI.APIyymm.*;
 
 /**
@@ -140,36 +144,18 @@ public class SalariesDAO extends DAOabstract<Salaries> {
 
     public static RecStatistics getStatistics(int yymm){
 
-        APIerror.resetErr();
+        var resRead = APIfiles.readFile("statistics.sql", ETypeFile.SQL_CODE);
+        if (!resRead.res()){
+            APIerror.setError( "Файл statistics.sql не найден");
+            return null;
+        }
 
-        var sql = """
-                DELETE from BufStatistics WHERE id> 0;
-                INSERT INTO BufStatistics(yymm) values(2308);
-                                
-                UPDATE BufStatistics
-                	set avg  = (select avg(salary) from Salaries WHERE yymm = 2308),
-                		maxSalr = (select max(salary) from Salaries WHERE yymm = 2308),
-                		minSalr = (select min(salary) from Salaries WHERE yymm = 2308),
-                		emplMax  = (select avg(salary) from Salaries WHERE yymm = 2308)
-                	where id > 0;
-                                
-                UPDATE BufStatistics
-                	set
-                		sumSal = (select sum(salary) from Salaries WHERE yymm = 2308),
-                		emplMax = (select (e.fullName || ' ' || salary || ' руб') res
-                			from Salaries s, Emploees e
-                			WHERE s.emploeesId = e.id
-                				and yymm = 2308
-                				and salary = (select max(salary) from Salaries s2 WHERE yymm = 2308)),
-                			
-                		emplMin = (select (e.fullName || ' ' || salary || ' руб') res
-                		from Salaries s, Emploees e
-                		WHERE s.emploeesId = e.id
-                			and yymm = 2308
-                			and salary = (select min(salary) from Salaries s2 WHERE yymm = 2308))
-                where id > 0;	
+        var sql = resRead.strData()
+                .replace("@yymm", String.valueOf(yymm));
+        var sqlSel = """
+                select id, yymm, avg, sumSal, maxSalr, minSalr, emplMax, emplMin \
+                from buf bs
                 """;
-        var sqlSel = "select id,yymm, avg, sumSal, maxSalr, minSalr, emplMax, emplMin from BufStatistics bs";
 
         try(Connection conn = APIsqlite.Connect.getConnect()){
             var stateInit = conn.createStatement();
@@ -178,9 +164,9 @@ public class SalariesDAO extends DAOabstract<Salaries> {
             var stateSel = conn.createStatement();
             var rs = stateSel.executeQuery(sqlSel);
 
+            RecStatistics res = null;
             while (rs.next()){
-                // double avg, int sumSal, int maxSalr, int minSalr, String emplMax, String emplMin
-                return new RecStatistics(
+                res = new RecStatistics(
                         rs.getDouble(3),
                         rs.getInt(4),
                         rs.getInt(5),
@@ -189,13 +175,12 @@ public class SalariesDAO extends DAOabstract<Salaries> {
                         rs.getString(8)
                         );
             }
+            return res;
 
         } catch (SQLException ex){
-            APIerror.setError(ex.getMessage());
+            println(ex.getMessage());
+            return null;
         }
-
-
-        return null;
     }
 
     // ----------------- Override

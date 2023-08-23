@@ -14,13 +14,22 @@ public class Statistics {
     public Statistics(int yymm){
         var res = SalariesDAO.getStatistics(yymm);
 
+        var emplMax = "Нет данных";
+        var emplMin = "Нет данных";
+        if (res.emplMax() != null){
+            emplMax = res.emplMax();
+        }
+        if (res.emplMin() != null){
+            emplMin = res.emplMin();
+        }
+
         this.yymm = yymm;
         avgSalaries = res.avg();
         sumSalaries = res.sumSal();
         maxSalaries = res.maxSalr();
         minSalaries = res.minSalr();
-        emploeeMax = res.emplMax();
-        emploeeMin = res.emplMin();
+        emploeeMax = emplMax;
+        emploeeMin = emplMin;
 
     }
 

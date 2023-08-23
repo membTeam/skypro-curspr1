@@ -1,3 +1,3 @@
 package devlAPI.enumType;
 
-public enum ETypeFile{initial, sqlcode, config};
+public enum ETypeFile{INITIAL, SQL_CODE, CONFIG};

@@ -12,9 +12,9 @@ public class APIfiles {
 
         RecordResProcExt res;
         String path = "";
-        if (typeFile == ETypeFile.initial) {
+        if (typeFile == ETypeFile.INITIAL) {
             path = "anyData/initialData/";
-        } else if (typeFile == ETypeFile.sqlcode) {
+        } else if (typeFile == ETypeFile.SQL_CODE) {
             path = "anyData/SQLscript/";
         } else { // файл конфигурации
             path = "";
