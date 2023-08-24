@@ -10,7 +10,7 @@
 	models.Deparment    справочник подразделений в БД Departments
 	models.Position     справочник должности в БД Positions 
 	models.Salaries	    модель для начислений заработной платы в Salaries
-    models.Statistics       Моделль сводных данных по статистике начислений
+      models.Statistics     Моделль сводных данных по статистике начислений
 ## DAO управление бизнес логикой
     models.EmploeeDAO
     models.DepartmentDAO
