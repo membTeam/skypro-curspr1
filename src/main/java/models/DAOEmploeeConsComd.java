@@ -15,7 +15,6 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
     private String strDeparment;
 
     public DAOEmploeeConsComd(int id, EModfModels eModfModels) {
-
         super(new EmploeeDAO(), id, eModfModels);
 
         this.eModfModels = eModfModels;
@@ -31,47 +30,54 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
         return "cmd id pr gr";
     }
 
-    public static RecordResProc initInstenceConsComand(RecordComdParams[] arrComdParams){
-
-        var method = arrComdParams[0].value();
-        var eModfModel = switch (method) {
+    public static DAOEmploeeConsComd initDAOEmploeeConsComd(int idValue, String strMethod){
+        var eModfModel = switch (strMethod) {
             case "upd" -> EModfModels.UPDATE;
             case "ins" -> EModfModels.INSERT;
             case "del" -> EModfModels.DELETE;
-            case "pr"  -> EModfModels.PRINT;
             default -> EModfModels.EMPTY;
         };
 
         if (eModfModel == EModfModels.EMPTY){
-            return RecordResProc.getResultErr("Метод " + method + " не распознан д/быть upd ins del");
+            return null;
         }
+        return new DAOEmploeeConsComd(idValue, eModfModel);
+    }
 
+    public static RecordResProc initInstenceConsComand(RecordComdParams[] arrComdParams){
+
+        var method = arrComdParams[0].value();
         var strId = arrComdParams[1].value();
         int id;
         try {
-            id = eModfModel == EModfModels.INSERT ? -1 : Integer.parseInt(strId);
+            id = method.equalsIgnoreCase("ins") ? -1 : Integer.parseInt(strId);
         } catch (NumberFormatException es) {
             return RecordResProc.getResultErr("Ошибка id д. быть число");
         }
 
         // Вывод сообщения в консоль
-        if (eModfModel == EModfModels.PRINT){
-            EmploeeDAO.setIdValue(id);
-            return new RecordResProc((IRunComd) EmploeeDAO::printEmploeesForDepartment);
+        if (method.equalsIgnoreCase("pr")){
+            return printComdCons(id);
         }
 
-        var daoBaseConsComd = new DAOEmploeeConsComd(id, eModfModel);
-
-        if (eModfModel != EModfModels.INSERT
-                && !((DAOEmploeeConsComd) daoBaseConsComd).isExistsModel()) {
-            return RecordResProc.getResultErr(
-                    String.format("%s нет данных по id %d", "Emploee", id));
+        var daoBaseConsComd = initDAOEmploeeConsComd(id, method);
+        if (daoBaseConsComd == null){
+            return RecordResProc.getResultErr("Object DAOEmploeeConsComd не создан");
         }
 
         return new RecordResProc(daoBaseConsComd);
     }
 
     // ------------------------------------------------
+
+    private static RecordResProc printComdCons(int idValue){
+        var res = EmploeeDAO.printEmploeesForDepartment(idValue);
+        if (!res.res()){
+            return RecordResProc.getResultErr(res.mes());
+        }
+
+        return new RecordResProc((IRunComd) res.data());
+    }
 
     @Override
     public boolean isExistsModel() {
@@ -173,7 +179,7 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
 
     private void initArrConsParserItemModf() {
 
-        if (eModfModels != EModfModels.INSERT && model == null) {
+        if (eModfModels != EModfModels.INSERT && !isExistsModel()) {
             return;
         }
 
@@ -328,15 +334,20 @@ public class DAOEmploeeConsComd extends DAObaseConsComand {
 
     @Override
     public RecordResProc saveModel() {
-
-        if (eModfModels == EModfModels.UPDATE) {
-            return saveUpdate();
-        } else if (eModfModels == EModfModels.DELETE) {
-            return saveDelete();
-        } else {
-            return saveInsert();
+        if (APIerror.getErr()) {
+            return RecordResProc.getResultErr(APIerror.getMes());
+        } else if(eModfModels != EModfModels.INSERT && !isExistsModel()){
+            return RecordResProc.getResultErr("Нет данных по сотруднику");
         }
 
+        var res = switch (eModfModels){
+            case UPDATE -> saveUpdate();
+            case DELETE -> saveDelete();
+            case INSERT -> saveInsert();
+            default -> RecordResProc.getResultErr("method is empty");
+        };
+
+        return res;
     }
 
 }

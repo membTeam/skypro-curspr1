@@ -298,8 +298,7 @@ public class EmploeeDAOTest {
     public void printEmploeesForDepartment_test(){
         println("testing printEmploeesForDepartment_test");
 
-        EmploeeDAO.setIdValue(2);
-        EmploeeDAO.printEmploeesForDepartment();
+        EmploeeDAO.printEmploeesForDepartment(2);
 
         // assert
         Assertions.assertFalse(APIerror.getErr());

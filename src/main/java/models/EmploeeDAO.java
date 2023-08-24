@@ -1,5 +1,6 @@
 package models;
 
+import DevlInterface.IRunComd;
 import devlAPI.APIdevl;
 import devlAPI.APIerror;
 import devlRecord.RecordResProc;
@@ -22,11 +23,6 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
     private static RecordResProc resProcOk = new RecordResProc(true, "ok", null);
 
     // ----------------------------
-
-    private static int idValue;
-    public static void setIdValue(int id){
-        idValue = id;
-    }
 
     static public RecordResProc getAllEmploee() {
         RecordResProc res = null;
@@ -57,7 +53,40 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
         return res;
     }
 
-    static public void printEmploeesForDepartment() {
+    static public RecordResProc printEmploeesForDepartment(int idValue){
+        var sql = String.format("""
+                select p.jobTitle, e.fullName, p.salary \
+                	from Emploees e, Positions p, Departments d \
+                	WHERE e.departmentsId = d.Id and e.positionId = p.id and d.Id = %d \
+                	order by departmentsId, positionId ;
+                """, idValue);
+
+        try (Connection conn = APIsqlite.Connect.getConnect()) {
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(sql);
+
+            var sb = new StringBuffer();
+            while (rs.next()) {
+                sb.append(String.format("%20s %-20s %d",
+                                rs.getString(1),
+                                rs.getString(2),
+                                rs.getInt(3)) + "\n");
+            }
+
+            IRunComd iRunComd = ()->{
+                for(var s : sb.toString().split("\n")){
+                    println(s);
+                }
+            };
+
+            return new RecordResProc(iRunComd);
+
+        } catch (SQLException ex) {
+            return RecordResProc.getResultErr(ex.getMessage());
+        }
+    }
+
+    /*static public void printEmploeesForDepartment() {
         APIerror.resetErr();
 
         var sql = String.format("""
@@ -82,7 +111,7 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
             APIerror.setError(ex.getMessage());
         }
 
-    }
+    }*/
 
     static public void printAllEmploee() {
         APIerror.resetErr();

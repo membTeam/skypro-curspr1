@@ -54,7 +54,7 @@ public class SalariesDAO {
             return RecordResProc.getResultErr("Файл emplAdd_salaries.sql не найден");
         }
 
-        var sql = readFile.strData();
+        var sql = readFile.strData().replace("@pr", String.valueOf(1d + proc/100d));
         var sqlQuery = "SELECT id, jobTitle, salBase, salEnd from buf;";
 
         try(Connection conn = APIsqlite.Connect.getConnect()){
@@ -66,7 +66,7 @@ public class SalariesDAO {
             var rs = stateQuery.executeQuery(sqlQuery);
 
             var sb = new StringBuffer("Перерасчет по заработной плате\n");
-            sb.append(String.format("Перерасчета на %d процентов\n", proc).indent(3));
+            sb.append(String.format("Перерасчет на %d процентов\n", proc).indent(3));
             while (rs.next()){
                 sb.append(
                         String.format("%-25s %6d -> %d\n",rs.getString(2), rs.getInt(3), rs.getInt(4)

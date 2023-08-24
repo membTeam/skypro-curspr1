@@ -1,3 +1,3 @@
 package devlAPI.enumType;
 
-public enum EModfModels { UPDATE, INSERT, DELETE, PRINT, EMPTY }
+public enum EModfModels { UPDATE, INSERT, DELETE, EMPTY }

@@ -16,11 +16,7 @@
     private int posLimit;
 
     public PostionLimit(int id){
-        /*var resRead = APIfiles.readFile("limitPosition.sql", ETypeFile.sqlcode);
-        if (!resRead.res()){
-            APIerror.setError(resRead.mes());
-            return;
-        }*/
+        APIerror.resetErr();
 
         var sql = """
                 DELETE from LimitPosition WHERE id > 0;
@@ -31,9 +27,7 @@
                 UPDATE LimitPosition set posUsed = (select COUNT(*) num
                 		from Emploees e WHERE positionId = @id)
                 	WHERE id > 0;
-                """;
-
-        sql = sql.replace("@id", String.valueOf(id));
+                """.replace("@id", String.valueOf(id)); ;
 
         var sqlSelect = "select id, posUsed, posLimit from LimitPosition";
 
@@ -50,7 +44,7 @@
                 posLimit = rs.getInt(3);
             }
 
-        } catch (Exception ex){
+        } catch (SQLException ex){
             APIerror.setError("err findEntityById:\n" + ex.getMessage());
         }
     }

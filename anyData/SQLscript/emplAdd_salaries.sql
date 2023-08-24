@@ -11,7 +11,7 @@ INSERT INTO buf(id, jobTitle, salBase)
 select id, jobTitle, salary
 	from Positions ;
 
-UPDATE buf set salEnd = salBase * 1.1 WHERE id > 0;
+UPDATE buf set salEnd = salBase * @pr WHERE id > 0;
 
 UPDATE Positions
     set salary = (select cast(salEnd as integer) from buf WHERE id = Positions.id)

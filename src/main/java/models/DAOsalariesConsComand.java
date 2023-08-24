@@ -1,17 +1,12 @@
 package models;
 
 import DevlInterface.IRunComd;
-import devlAPI.enumType.EMOdfSalaries;
 import devlRecord.RecordComdParams;
 import devlRecord.RecordResProc;
 
 import static devlAPI.APIprintService.println;
 
 public class DAOsalariesConsComand {
-
-    private static RecordComdParams[] arrRecComdParams;
-
-    private static EMOdfSalaries eModfSalaries;
 
     public static RecordResProc initInstenceForConsComd(RecordComdParams[] arrComdParams) {
 
@@ -23,11 +18,13 @@ public class DAOsalariesConsComand {
         }
 
         var method = arrComdParams[0].value();
-        var res = switch (method) {
+
+        RecordResProc res;
+        res = switch (method) {
             case "add" -> addSalaries(value);
             case "ls" -> printArrSalarees(value);
             case "stat" -> printStatistics(value);
-            case "incr" -> incrSalaries(value);
+            case "incr" -> SalariesDAO.incrSalaries(value);
             default -> RecordResProc.getResultErr(
                     String.format("(%s) нет такой команды", method));
         };
@@ -41,20 +38,18 @@ public class DAOsalariesConsComand {
         return new RecordResProc((IRunComd) statistica::printEntity);
     }
 
-    private static RecordResProc incrSalaries(int value) {
-        return SalariesDAO.incrSalaries(value);
-    }
-
     private static RecordResProc addSalaries(int yymm) {
         var resAdd = SalariesDAO.addSalaries(yymm);
 
-        return new RecordResProc((IRunComd) () -> {
-                    if (resAdd.res()) {
-                        println(String.format("Выполнено начисление заработной платы за период %d", yymm));
-                    } else {
-                        println(resAdd.mes());
-                    }
-                });
+        IRunComd iRunComd = ()->{
+            if (resAdd.res()) {
+                println(String.format("Выполнено начисление заработной платы за период %d", yymm));
+            } else {
+                println(resAdd.mes());
+            }
+        };
+
+        return new RecordResProc(iRunComd);
     }
 
     private static RecordResProc printArrSalarees(int yymm) {
