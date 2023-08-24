@@ -31,7 +31,7 @@
     - ввод команды -> отображение данных 
     - ввод команды -> интерактивный ввод данных в консоль
     - базовый класс  ConsRunComand
-    - для интерактивного ввода ConsRunComand -> DAObaseConsComand после 
+    - для интерактивного ввода ConsRunComand -> DAObaseConsComand 
 
     devlAPI.ConsRunComand 
         - parserConsoleComand парсер консольного ввода 
