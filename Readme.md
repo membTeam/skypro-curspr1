@@ -33,7 +33,7 @@
     - базовый класс  ConsRunComand
     - для интерактивного ввода ConsRunComand -> DAObaseConsComand 
 
-    devlAPI.ConsRunComand 
+    devlAPI.ConsRunComand -> методы и переменные
         - parserConsoleComand парсер консольного ввода 
         - ConsParserItem буфер консольного ввода
     models.
