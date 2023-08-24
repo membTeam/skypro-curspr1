@@ -41,7 +41,7 @@
             DeparmentDAO, EmploeeDAO, DAObaseConsComd
         - DAObaseConsComd super class for DAOEmploeeConsComd
         - DAOEmploeeConsComd используется в диалогом режиме ввода с консоли
-        - DAOsalariesConsComand используется для манипуляцияи по ничислениям заработной платы
+        - DAOsalariesConsComand используется при ничислении заработной платы
 
 ## Начисление заработной платы
     - расчет статистики начислений через СУБД
