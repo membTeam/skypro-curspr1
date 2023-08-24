@@ -9,7 +9,7 @@
     models.Emploee 	    справочник сотрудников в БД Emploees
 	models.Deparment    справочник подразделений в БД Departments
 	models.Position     справочник должности в БД Positions 
-	models.Salaries	    модель для начислений заработной платы в Salaries
+	models.Salaries	    модель для начислений заработной платы в БД Salaries
    models.Statistics     Моделль сводных данных по статистике начислений
 ## DAO управление бизнес логикой
     models.EmploeeDAO
