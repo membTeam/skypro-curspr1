@@ -1,36 +1,36 @@
 package models;
 
 import APIsqlite.Connect;
+import devlAPI.APIdevl;
 import devlAPI.APIerror;
 import devlRecord.RecordResProc;
 import devlRecord.RecordResProcExt;
-import devlAPI.APIdevl;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.Connection;
 
-import static devlAPI.APIprintService.*;
+import static devlAPI.APIprintService.println;
 
-// TODO: включить наследование extends DAOabstract<Integer, Department>
 public class PositionsDAO {
 
     public static void printAllPosition(){
+        APIerror.resetErr();
         var dataLs = getListPosition();
 
         if (!dataLs.res()){
+            APIerror.setError(dataLs.mes());
             return;
         }
 
-        for (var item : (List<Positions>) dataLs.data()){
+        var lsData = (List<Positions>) dataLs.data();
+        for (var item : lsData){
             println(item.toString());
         }
     }
 
     public static  RecordResProc getListPosition(){
-
-        RecordResProc res = null;
         List<Positions> resLs = new ArrayList<>();
         var sql = "select id, jobTitle, salary, numLimit  from Positions p;";
 
@@ -48,42 +48,14 @@ public class PositionsDAO {
                 );
             }
 
-            res = new RecordResProc(resLs);
+            return new RecordResProc(resLs);
         }
         catch (SQLException ex){
-            res = new RecordResProc(ex.getMessage());
+            return new RecordResProc(ex.getMessage());
         }
-        catch (Exception ex){
-            res = new RecordResProc(ex.getMessage());
-        }
-
-        return res;
     }
-    public static RecordResProcExt getNumLimit(int id) {
 
-        RecordResProcExt res = null;
-
-        var sql = """
-                SELECT  CASE
-                when (select EXISTS(select * from Positions p WHERE id = $id)) > 0
-                        THEN (select numLimit  from Positions p2 WHERE id = $id)
-                ELSE -1
-                END numLimit
-                """;
-
-        sql = APIdevl.replaceStrByInt(sql, "%id", id);
-
-        var resSql = DAOcomnAPI.getDataFromSQLscript(sql);
-        if (resSql.res()){
-            res = new RecordResProcExt(Integer.parseInt(resSql.strData()) );
-        } else {
-            res = resSql;
-        }
-
-        return res;
-    }
     public static RecordResProcExt getSalary(Connection conn, int id) {
-        RecordResProcExt res = null;
 
         var sql = """
                 SELECT  CASE
@@ -98,22 +70,15 @@ public class PositionsDAO {
                 ? DAOcomnAPI.getDataFromSQLscript(sql)
                 : DAOcomnAPI.getDataFromSQLscript(conn, sql);
 
-        int salary;
         try{
-            salary = Integer.parseInt((resSQL.strData()));
+            var salary = Integer.parseInt((resSQL.strData()));
+            return new RecordResProcExt(salary);
         } catch (NumberFormatException ex) {
-            salary = 0;
+            return RecordResProcExt.getExtResultErr(ex.getMessage());
         }
-
-        res = new RecordResProcExt(true,
-                "ok","ok", salary);
-
-        return res;
     }
 
     public static RecordResProcExt getJobTitle(Connection conn, int id){
-
-        RecordResProcExt res = null;
 
         var sql = """
                 SELECT  CASE
@@ -125,11 +90,9 @@ public class PositionsDAO {
 
         sql = APIdevl.replaceStrByInt(sql, "%id", id);
 
-        var resSQL = (conn == null)
+        return  (conn == null)
                 ? DAOcomnAPI.getDataFromSQLscript(sql)
                 : DAOcomnAPI.getDataFromSQLscript(conn, sql);
-
-        return new RecordResProcExt(true, "ok", resSQL.strData(), 0);
 
     }
 
@@ -147,7 +110,8 @@ public class PositionsDAO {
                 				and departmentsId = %d \
                 				and positionId in (select id from Positions p WHERE onlyOne > 0 );
                 """, departmentId);
-        var sqlQuery = String.format("select exists(SELECT * from buf WHERE positionId = %d) res", positionId);
+        var sqlQuery = String.format("select exists(SELECT * from buf WHERE positionId = %d) res",
+                positionId);
 
         try(Connection conn = APIsqlite.Connect.getConnect()){
             var stateUpdate = conn.createStatement();
@@ -163,7 +127,7 @@ public class PositionsDAO {
 
             return resQuery;
 
-        } catch (Exception ex){
+        } catch (SQLException ex){
             APIerror.setError(ex.getMessage());
             return false;
         }

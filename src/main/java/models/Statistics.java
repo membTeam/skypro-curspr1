@@ -1,5 +1,7 @@
 package models;
 
+import devlAPI.APIerror;
+
 import static devlAPI.APIprintService.println;
 
 public class Statistics {
@@ -13,6 +15,10 @@ public class Statistics {
 
     public Statistics(int yymm){
         var res = SalariesDAO.getStatistics(yymm);
+
+        if (res == null || APIerror.getErr()){
+            return;
+        }
 
         var emplMax = "Нет данных";
         var emplMin = "Нет данных";

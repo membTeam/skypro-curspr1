@@ -1,11 +1,11 @@
 package models;
 
 public class Salaries {
-    private int id;
-    private int yymm;
-    private int emploeesId;
+    private final int id;
+    private final int yymm;
+    private final int emploeesId;
     private String fullName;
-    private int salary;
+    private final int salary;
 
     public Salaries(int id, int yymm, int emploeeId, int salary){
         this.id = id;
@@ -19,10 +19,6 @@ public class Salaries {
     }
 
     // -----------------
-
-    public int getYymm(){
-        return yymm;
-    }
 
     @Override
     public String toString() {

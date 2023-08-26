@@ -54,7 +54,6 @@ public class DAOsalariesConsComand {
 
     private static RecordResProc printArrSalarees(int yymm) {
         var salareesComb = new SalariesCombine(yymm);
-        salareesComb.loadDataSalariesExt();
 
         IRunComd iRunComd = salareesComb::printArrSalarees;
         return new RecordResProc(iRunComd);

@@ -86,33 +86,6 @@ public class EmploeeDAO extends DAOabstract<Emploee> {
         }
     }
 
-    /*static public void printEmploeesForDepartment() {
-        APIerror.resetErr();
-
-        var sql = String.format("""
-                select p.jobTitle, e.fullName, p.salary \
-                	from Emploees e, Positions p, Departments d \
-                	WHERE e.departmentsId = d.Id and e.positionId = p.id and d.Id = %d \
-                	order by departmentsId, positionId ;
-                """, idValue);
-
-        try (Connection conn = APIsqlite.Connect.getConnect()) {
-            Statement statement = conn.createStatement();
-                ResultSet rs = statement.executeQuery(sql);
-                while (rs.next()) {
-                    println(
-                            String.format("%20s %-20s %d",
-                                    rs.getString(1),
-                                    rs.getString(2),
-                                    rs.getInt(3)));
-            }
-
-        } catch (SQLException ex) {
-            APIerror.setError(ex.getMessage());
-        }
-
-    }*/
-
     static public void printAllEmploee() {
         APIerror.resetErr();
 

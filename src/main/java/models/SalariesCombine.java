@@ -1,9 +1,9 @@
 package models;
 
 
+import APIsqlite.Connect;
 import devlAPI.APIerror;
 import devlAPI.APIyymm;
-import devlRecord.RecordResProc;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -16,22 +16,24 @@ import static devlAPI.APIprintService.println;
 
 public class SalariesCombine {
     private List<Salaries> arrSalaries;
-    private int yymm;
-    private boolean loadExt = false;
+    private final int yymm;
 
-    public SalariesCombine(int yymm){
+    public SalariesCombine(int yymm) {
         this.yymm = yymm;
+        loadDataSalaries();
     }
 
-    public static void printArrSalareesExt(){
+    public static void printArrSalareesExt() {
         var yymm = APIyymm.getLastYYMM();
         var salariesCombine = new SalariesCombine(yymm);
-        salariesCombine.loadDataSalariesExt();
+        if (APIerror.getErr()) {
+            println(APIerror.getMes());
+        }
 
         salariesCombine.printArrSalarees();
     }
 
-    public static void printGroupSalaries(){
+    public static void printGroupSalaries() {
         APIerror.resetErr();
 
         var sql = """
@@ -39,65 +41,30 @@ public class SalariesCombine {
                 min(salary) minSal, AVG(salary) avg \
                 from Salaries s group by yymm ORDER by yymm desc LIMIT 6;
                 """;
-        try(Connection conn = APIsqlite.Connect.getConnect()){
+        try (Connection conn = APIsqlite.Connect.getConnect()) {
             var stateQuery = conn.createStatement();
             var rs = stateQuery.executeQuery(sql);
 
-            while (rs.next()){
+            while (rs.next()) {
                 println(String.format("yymm:%4d sum:%-6d max:%-6d min:%-6d avg:%.3f",
                         rs.getInt(1),
                         rs.getInt(2),
                         rs.getInt(3),
                         rs.getInt(4),
                         rs.getDouble(5)
-                        ));
+                ));
             }
 
-        } catch (Exception ex){
+        } catch (SQLException ex) {
             APIerror.setError(ex.getMessage());
         }
     }
 
-    public int getYymm(){
-        return this.yymm;
-    }
-    public List<Salaries> getArrSalaries(){
-        return arrSalaries;
-    }
+    public void loadDataSalaries() {
+        APIerror.resetErr();
 
-    public RecordResProc loadDataSalaries(){
-        if (!SalariesDAO.verfExistsData(yymm)){
-            return RecordResProc.getResultErr("На данный период нет данных");
-        }
-
-        var sql = String.format("""
-                                SELECT id, yymm, emploeesId, salary \
-                                from Salaries s WHERE yymm = %d;
-                                """, yymm);
-        arrSalaries = new ArrayList<Salaries>();
-
-        try(Connection conn = APIsqlite.Connect.getConnect()){
-            Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(sql);
-            while (rs.next()) {
-                arrSalaries.add(
-                        new Salaries(rs.getInt(1),
-                                rs.getInt(2),
-                                rs.getInt(3),
-                                rs.getInt(4)
-                                ) );
-            }
-
-            return new RecordResProc();
-
-        } catch (SQLException ex){
-            return RecordResProc.getResultErr(ex.getMessage());
-        }
-    }
-
-    public RecordResProc loadDataSalariesExt(){
-        if (!SalariesDAO.verfExistsData(yymm)){
-            return RecordResProc.getResultErr("На данный период нет данных");
+        if (!SalariesDAO.verfExistsData(yymm)) {
+            APIerror.setError("На данный период нет данных");
         }
 
         var sql = String.format("""
@@ -105,9 +72,10 @@ public class SalariesCombine {
                 	from Salaries s, Emploees e \
                 WHERE s.emploeesId = e.id and yymm = %d;
                                 """, yymm);
-        arrSalaries = new ArrayList<Salaries>();
 
-        try(Connection conn = APIsqlite.Connect.getConnect()){
+        arrSalaries = new ArrayList<>();
+
+        try (Connection conn = Connect.getConnect()) {
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery(sql);
             while (rs.next()) {
@@ -119,23 +87,15 @@ public class SalariesCombine {
                 item.setFullName(rs.getString(5));
                 arrSalaries.add(item);
             }
-
-            loadExt = true;
-            return new RecordResProc();
-
-        } catch (SQLException ex){
-            return RecordResProc.getResultErr(ex.getMessage());
+        } catch (SQLException ex) {
+            APIerror.setError(ex.getMessage());
         }
     }
 
-    public void printArrSalarees(){
-            for (var item : arrSalaries){
-                if (loadExt){
-                    println(item.toStringExt());
-                } else {
-                    println(item.toString());
-                }
-            }
+    public void printArrSalarees() {
+        for (var item : arrSalaries) {
+            println(item.toStringExt());
+        }
     }
 
 }
