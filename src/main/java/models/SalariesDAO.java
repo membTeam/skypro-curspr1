@@ -20,36 +20,9 @@ import static devlAPI.APIyymm.*;
  */
 public class SalariesDAO {
 
-    /*public static void getArrSalaries(int yymm) {
-
-        APIerror.resetErr();
-
-        var sql = String.format("""
-                select s.yymm, s.salary, e.fullName, p.jobTitle \
-                    from Salaries s, Emploees e, Positions p \
-                WHERE s.emploeesId = e.id \
-                    and e.positionId = p.id \
-                    and yymm = %d order by e.departmentsId, e.positionId ;
-                """, yymm);
-        try(Connection conn = APIsqlite.Connect.getConnect()){
-            var stateQuery = conn.createStatement();
-            var rs = stateQuery.executeQuery(sql);
-
-            while (rs.next()){
-                println(String.format("%d %d %20s %20s",
-                        rs.getInt(1),
-                        rs.getInt(2),
-                        rs.getString(3),
-                        rs.getString(4) ));
-            }
-
-        } catch (Exception ex){
-            APIerror.setError(ex.getMessage());
-        }
-    }*/
-
     public static RecordResProc incrSalaries(int proc){
         var readFile = APIfiles.readFile("emplAdd_salaries.sql", ETypeFile.SQL_CODE);
+
         if (!readFile.res()){
             return RecordResProc.getResultErr("Файл emplAdd_salaries.sql не найден");
         }
@@ -69,23 +42,23 @@ public class SalariesDAO {
             sb.append(String.format("Перерасчет на %d процентов\n", proc).indent(3));
             while (rs.next()){
                 sb.append(
-                        String.format("%-25s %6d -> %d\n",rs.getString(2), rs.getInt(3), rs.getInt(4)
+                        String.format("%-25s %6d -> %d\n",rs.getString(2),
+                                rs.getInt(3),
+                                rs.getInt(4)
                         ).indent(3));
             }
 
             IRunComd iRunComd = ()->{
                 var arrStr = sb.toString().split("\n");
-                for (var i=0; i < arrStr.length; i++ ){
-                    println(arrStr[i]);
+                for (String s : arrStr) {
+                    println(s);
                 }
             };
 
             return new RecordResProc(iRunComd);
 
         } catch (SQLException ex){
-            return new RecordResProc( (IRunComd)()->{
-                    println(ex.getMessage());
-                } );
+            return new RecordResProc( (IRunComd)()-> println(ex.getMessage()));
         }
     }
 
@@ -96,7 +69,7 @@ public class SalariesDAO {
                 SELECT  CASE
                     	when (select EXISTS(select * from Salaries s)) > 0 \
                     			THEN 1 \
-                    	ELSE 0 
+                    	ELSE 0 \
                     END salary
                 """;
 
@@ -142,8 +115,7 @@ public class SalariesDAO {
         }
 
         try {
-            var maxId = Integer.parseInt(resSql.strData());
-            return maxId;
+            return Integer.parseInt(resSql.strData());
         } catch (NumberFormatException ex) {
             APIerror.setError(ex.getMessage());
             return -1;
@@ -180,22 +152,22 @@ public class SalariesDAO {
 
         MaxId++;
         try(Connection conn = APIsqlite.Connect.getConnect()){
-            var sb = new StringBuffer();
+            var sb = new StringBuilder();
             sb.append("INSERT INTO Salaries (id, yymm, emploeesId, salary)\n");
 
             boolean firstVal = true;
             for (var item : (List<Emploee>) EmploeeDAO.getAllEmploee().data()) {
-                //String strValue;
                 if (firstVal){
                     sb.append(String.format("values(%d,%d,%d,%d)",
-                            MaxId++, yymm, item.getId(), item.getSalary(conn)) + "\n");
+                            MaxId++, yymm, item.getId(), item.getSalary(conn))).append("\n");
                     firstVal = false;
                     continue;
                 }
-                sb.append("," + String.format("(%d,%d,%d,%d)",
+
+                sb.append(",").append(String.format("(%d,%d,%d,%d)",
                         MaxId++, yymm,
                         item.getId(),
-                        item.getSalary(conn)) + "\n");
+                        item.getSalary(conn))).append("\n");
             }
 
             var statMent = conn.createStatement();
@@ -209,15 +181,15 @@ public class SalariesDAO {
     }
 
     public static RecStatistics getStatistics(int yymm){
+        APIerror.resetErr();
 
         var resRead = APIfiles.readFile("statistics.sql", ETypeFile.SQL_CODE);
         if (!resRead.res()){
-            APIerror.setError( "Файл statistics.sql не найден");
+            APIerror.setError(resRead.mes());
             return null;
         }
 
-        var sql = resRead.strData()
-                .replace("@yymm", String.valueOf(yymm));
+        var sql = resRead.strData().replace("@yymm", String.valueOf(yymm));
         var sqlSel = """
                 select id, yymm, avg, sumSal, maxSalr, minSalr, emplMax, emplMin \
                 from buf bs
@@ -244,7 +216,7 @@ public class SalariesDAO {
             return res;
 
         } catch (SQLException ex){
-            println(ex.getMessage());
+            APIerror.setError(ex.getMessage());
             return null;
         }
     }

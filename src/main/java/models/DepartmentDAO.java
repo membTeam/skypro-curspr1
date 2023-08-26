@@ -44,10 +44,6 @@ public class DepartmentDAO extends DAOabstract<Department> {
         }
     }
 
-    public static void consComd(String strComd) {
-        println("From Department");
-    }
-
     public static void printAllDepartment() {
         var dataDepartment = getArrayModel(0);
         if (!dataDepartment.res()) {
